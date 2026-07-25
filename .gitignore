@@ -1,0 +1,9 @@
+# WSL / Windows copy artifacts
+*:Zone.Identifier
+
+# Local session notes, not for the public repo
+HANDOVER.md
+
+# Python
+__pycache__/
+*.pyc
