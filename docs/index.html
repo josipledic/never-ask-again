@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>never-ask-again</title>
+<meta name="description" content="Permission allowlists for AI coding agents, so yours stops asking and still cannot nuke your laptop. 971 rules across 20 ecosystems, generated for six agents.">
+<link rel="canonical" href="https://josipledic.github.io/never-ask-again/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="never-ask-again">
+<meta property="og:description" content="Permission allowlists for AI coding agents. 971 rules across 20 ecosystems, generated for six agents.">
+<meta property="og:url" content="https://josipledic.github.io/never-ask-again/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="never-ask-again">
+<meta name="twitter:description" content="Permission allowlists for AI coding agents. 971 rules across 20 ecosystems, generated for six agents.">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2337453a'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='%23fbf7f2' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #fbf7f2;
+  --ink: #37453a;
+  --body: #5f6c61;
+  --muted: #6d7a6f;
+  --faint: #8a8578;
+  --line: #e6e0d6;
+  --line-soft: #ece6db;
+  --code-bg: #f5f2ea;
+  --code-line: #dcd8cc;
+  --sage: #d7d8cc;
+  --peach: #f2e1d4;
+  --lilac: #dfd6de;
+  --blue: #dadee2;
+  --sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--body);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--lilac); color: var(--ink); }
+
+a { color: var(--ink); text-decoration-color: var(--code-line); text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--ink); }
+
+h1, h2, h3 { color: var(--ink); font-weight: 600; line-height: 1.25; margin: 0; }
+
+code, kbd { font-family: var(--mono); font-size: 0.9em; }
+
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+.prose { max-width: 66ch; }
+
+.label {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+  margin: 0 0 14px;
+}
+
+/* header */
+header {
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: rgba(251, 247, 242, 0.92);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+}
+.bar { display: flex; align-items: center; gap: 24px; height: 58px; }
+.brand { font-family: var(--mono); font-weight: 500; color: var(--ink); text-decoration: none; margin-right: auto; }
+nav { display: flex; gap: 20px; align-items: center; }
+nav a { font-size: 14px; color: var(--muted); text-decoration: none; }
+nav a:hover { color: var(--ink); }
+
+section { padding: 68px 0; border-bottom: 1px solid var(--line-soft); }
+section:last-of-type { border-bottom: 0; }
+
+/* hero */
+.hero { padding: 76px 0 56px; border-bottom: 0; }
+.hero h1 { font-size: clamp(34px, 6vw, 52px); letter-spacing: -0.02em; font-family: var(--mono); font-weight: 500; }
+.tagline { font-size: clamp(18px, 2.4vw, 21px); color: var(--body); margin: 20px 0 0; max-width: 30ch; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 0; padding: 0; list-style: none; }
+.chip {
+  font-family: var(--mono); font-size: 13px; color: var(--ink);
+  background: var(--code-bg); border: 1px solid var(--code-line);
+  border-radius: 999px; padding: 4px 12px;
+}
+
+/* copy block */
+.cta { margin: 34px 0 0; }
+.copy-row {
+  display: flex; align-items: stretch; gap: 0;
+  border: 1px solid var(--code-line); border-radius: 8px;
+  background: var(--code-bg); overflow: hidden;
+}
+.copy-row pre {
+  margin: 0; padding: 14px 16px; overflow-x: auto; flex: 1;
+  font-family: var(--mono); font-size: 13.5px; line-height: 1.6; color: var(--ink);
+}
+.copy-btn {
+  flex: none; border: 0; border-left: 1px solid var(--code-line);
+  background: transparent; cursor: pointer; padding: 0 16px;
+  font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.copy-btn:hover { background: var(--sage); color: var(--ink); }
+.caveat { font-size: 14.5px; color: var(--muted); margin: 14px 0 0; max-width: 62ch; }
+
+.figure { margin: 0; padding: 8px 0 0; }
+.figure svg { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; }
+
+/* bucket cards */
+.buckets { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 0 0 28px; }
+.bucket { border: 1px solid var(--line); border-radius: 10px; padding: 20px; background: #fff; }
+.bucket .k { font-family: var(--mono); font-weight: 500; color: var(--ink); font-size: 15px; }
+.bucket .n { font-family: var(--mono); font-size: 26px; color: var(--ink); margin: 6px 0 8px; }
+.bucket p { margin: 0; font-size: 14.5px; }
+.bucket .swatch { width: 34px; height: 6px; border-radius: 3px; display: block; margin: 0 0 14px; }
+
+.verdict { font-family: var(--mono); font-size: 14.5px; color: var(--ink); background: var(--code-bg); border: 1px solid var(--code-line); border-radius: 8px; padding: 16px 18px; }
+.verdict span { color: var(--muted); }
+
+/* install tabs */
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 20px; padding: 0; list-style: none; }
+.tab {
+  font-family: var(--mono); font-size: 13.5px; cursor: pointer;
+  border: 1px solid var(--code-line); background: transparent; color: var(--muted);
+  border-radius: 999px; padding: 5px 14px;
+}
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { background: var(--lilac); border-color: var(--lilac); color: var(--ink); }
+
+.meta { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 18px 0 0; font-size: 14px; }
+.meta div { min-width: 0; }
+.meta dt { font-family: var(--mono); font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); margin: 0 0 3px; }
+.meta dd { margin: 0; font-family: var(--mono); font-size: 13.5px; color: var(--ink); overflow-wrap: anywhere; }
+
+/* coverage */
+.cov { columns: 2; column-gap: 40px; margin: 0; padding: 0; list-style: none; }
+.cov li { break-inside: avoid; padding: 9px 0; border-bottom: 1px solid var(--line-soft); display: flex; gap: 12px; align-items: baseline; }
+.cov .name { color: var(--ink); font-size: 14.5px; flex: 1; min-width: 0; }
+.cov .num { font-family: var(--mono); font-size: 13px; color: var(--faint); white-space: nowrap; }
+.cov .num b { font-weight: 500; color: var(--muted); }
+.cov-total { display: flex; gap: 12px; align-items: baseline; margin: 20px 0 0; padding: 14px 0 0; border-top: 1px solid var(--line); }
+.cov-total .name { color: var(--ink); font-weight: 600; flex: 1; }
+.cov-total .num { font-family: var(--mono); font-size: 13.5px; color: var(--ink); }
+
+/* code sample */
+pre.block {
+  font-family: var(--mono); font-size: 13.5px; line-height: 1.7;
+  background: var(--code-bg); border: 1px solid var(--code-line);
+  border-radius: 8px; padding: 16px 18px; overflow-x: auto; color: var(--ink);
+  margin: 16px 0;
+}
+.dead { color: var(--faint); }
+
+.gotcha { margin: 0 0 34px; }
+.gotcha h3 { font-size: 18px; margin: 0 0 8px; }
+.gotcha p { margin: 0; max-width: 66ch; }
+
+.pipeline { font-family: var(--mono); font-size: 14px; color: var(--ink); background: var(--code-bg); border: 1px solid var(--code-line); border-radius: 8px; padding: 16px 18px; overflow-x: auto; }
+
+footer { padding: 44px 0 64px; font-size: 14px; color: var(--muted); }
+.footlinks { display: flex; flex-wrap: wrap; gap: 20px; margin: 0 0 14px; padding: 0; list-style: none; }
+.footlinks a { font-size: 14px; }
+
+@media (max-width: 640px) {
+  .cov { columns: 1; }
+  nav a[data-optional] { display: none; }
+  section { padding: 52px 0; }
+  .hero { padding: 56px 0 40px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="./">never-ask-again</a>
+    <nav>
+      <a href="#install">Install</a>
+      <a href="#coverage" data-optional>Coverage</a>
+      <a href="#gotchas" data-optional>Gotchas</a>
+      <a href="https://github.com/josipledic/never-ask-again">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>never-ask-again</h1>
+    <p class="tagline">Permission allowlists for AI coding agents, so yours stops asking and still cannot nuke your laptop.</p>
+
+    <ul class="chips">
+<!-- gen:chips -->
+      <li class="chip">971 rules</li>
+      <li class="chip">20 ecosystems</li>
+      <li class="chip">6 agents</li>
+      <li class="chip">0 dependencies</li>
+      <li class="chip">MIT</li>
+<!-- /gen:chips -->
+    </ul>
+
+    <div class="cta">
+      <p class="label">Install</p>
+      <div class="copy-row">
+        <pre id="prompt">Read https://raw.githubusercontent.com/josipledic/never-ask-again/main/INSTALL-AGENT.md and follow it</pre>
+        <button class="copy-btn" data-copy="prompt">Copy</button>
+      </div>
+      <p class="caveat">Paste that into any of the six agents. It works out which one it is, merges into your existing config without clobbering it, and shows you a diff first. It will apply the deny block on its own, and it stops and waits for you before adding a single allow rule.</p>
+    </div>
+
+    <figure class="figure">
+      <svg viewBox="0 0 880 300" role="img" aria-label="Three commands sorted into allow, ask and deny">
+        <rect width="880" height="300" fill="#f5f2ea"/>
+        <g font-family="IBM Plex Mono, monospace" font-size="15">
+          <rect x="40" y="44" width="800" height="58" rx="8" fill="#fbf7f2" stroke="#e6e0d6"/>
+          <rect x="40" y="44" width="5" height="58" rx="2.5" fill="#d7d8cc"/>
+          <text x="70" y="70" fill="#37453a">terraform plan</text>
+          <text x="70" y="90" fill="#8a8578" font-size="13">reads state, prints a diff</text>
+          <text x="800" y="79" fill="#5f6c61" text-anchor="end">allow</text>
+
+          <rect x="40" y="120" width="800" height="58" rx="8" fill="#fbf7f2" stroke="#e6e0d6"/>
+          <rect x="40" y="120" width="5" height="58" rx="2.5" fill="#f2e1d4"/>
+          <text x="70" y="146" fill="#37453a">terraform apply</text>
+          <text x="70" y="166" fill="#8a8578" font-size="13">changes production</text>
+          <text x="800" y="155" fill="#5f6c61" text-anchor="end">ask</text>
+
+          <rect x="40" y="196" width="800" height="58" rx="8" fill="#fbf7f2" stroke="#e6e0d6"/>
+          <rect x="40" y="196" width="5" height="58" rx="2.5" fill="#dfd6de"/>
+          <text x="70" y="222" fill="#37453a">terraform state rm</text>
+          <text x="70" y="242" fill="#8a8578" font-size="13">corrupts the file you would recover from</text>
+          <text x="800" y="231" fill="#5f6c61" text-anchor="end">deny</text>
+        </g>
+      </svg>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="label">The design rule</p>
+    <div class="buckets">
+<!-- gen:buckets -->
+      <div class="bucket">
+        <span class="swatch" style="background:#d7d8cc"></span>
+        <div class="k">allow</div>
+        <div class="n">649</div>
+        <p>Reversible and local.</p>
+      </div>
+      <div class="bucket">
+        <span class="swatch" style="background:#f2e1d4"></span>
+        <div class="k">ask</div>
+        <div class="n">69</div>
+        <p>Touches remote state or installs code.</p>
+      </div>
+      <div class="bucket">
+        <span class="swatch" style="background:#dfd6de"></span>
+        <div class="k">deny</div>
+        <div class="n">253</div>
+        <p>Destroys, escalates, or exfiltrates.</p>
+      </div>
+<!-- /gen:buckets -->
+    </div>
+    <p class="verdict">
+      terraform plan runs. <span>Reversible.</span><br>
+      terraform apply asks. <span>Changes production.</span><br>
+      terraform state rm never runs. <span>No recovery path.</span>
+    </p>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <p class="label">Install</p>
+    <h2>Six agents, one rule set</h2>
+    <p class="prose" style="margin:12px 0 26px">Or skip the agent-driven install and copy the generated file yourself.</p>
+
+    <ul class="tabs" role="tablist" id="tabs"></ul>
+
+    <div class="copy-row">
+      <pre id="snippet"></pre>
+      <button class="copy-btn" data-copy="snippet">Copy</button>
+    </div>
+
+    <dl class="meta">
+      <div><dt>Config file</dt><dd id="m-config"></dd></div>
+      <div><dt>Granularity</dt><dd id="m-gran"></dd></div>
+      <div><dt>Notes</dt><dd><a id="m-docs" href="#">docs</a></dd></div>
+    </dl>
+
+    <p class="prose" style="margin:32px 0 0">These tools disagree about which rule wins when two of them match. Claude Code takes the first match with deny beating ask beating allow. OpenCode takes the last match. Oh My Pi takes the first match in one flat list. Two of those are exact opposites, so the rules are generated per agent rather than copied between them.</p>
+  </div>
+</section>
+
+<section id="coverage">
+  <div class="wrap">
+    <p class="label">Coverage</p>
+    <h2>What it actually covers</h2>
+    <p class="prose" style="margin:12px 0 26px">Grouped by ecosystem so you can delete the ones you do not use.</p>
+
+<!-- gen:coverage -->
+    <ul class="cov">
+      <li><span class="name" title="Tool-level rules, secret files, and the deny block that applies to every stack">Core</span><span class="num"><b>15</b> &middot; 3 &middot; 100</span></li>
+      <li><span class="name" title="git, jujutsu, and commit hooks">Version control</span><span class="num"><b>37</b> &middot; 5 &middot; 18</span></li>
+      <li><span class="name" title="npm, pnpm, yarn, bun, deno, and the JS toolchain">Node and TypeScript</span><span class="num"><b>105</b> &middot; 5 &middot; 0</span></li>
+      <li><span class="name" title="go toolchain, linters, protobuf, sqlc">Go</span><span class="num"><b>33</b> &middot; 2 &middot; 0</span></li>
+      <li><span class="name" title="uv, ruff, ty, pytest, hatch, poetry, coverage">Python</span><span class="num"><b>42</b> &middot; 5 &middot; 0</span></li>
+      <li><span class="name" title="cargo, clippy, nextest, cargo-deny, insta">Rust</span><span class="num"><b>20</b> &middot; 2 &middot; 0</span></li>
+      <li><span class="name" title="Gradle, Maven, Kotlin linters, Bazel, Buck2, Pants">JVM and build systems</span><span class="num"><b>49</b> &middot; 0 &middot; 1</span></li>
+      <li><span class="name" title="dotnet CLI">.NET</span><span class="num"><b>6</b> &middot; 0 &middot; 0</span></li>
+      <li><span class="name" title="Swift, Xcode, Android, Flutter, Dart">Swift and mobile</span><span class="num"><b>24</b> &middot; 0 &middot; 0</span></li>
+      <li><span class="name" title="CMake, Ninja, Meson, clang tooling, Zig">C and C++</span><span class="num"><b>18</b> &middot; 0 &middot; 0</span></li>
+      <li><span class="name" title="bundler, mix, cabal, stack">Ruby, Elixir, Haskell</span><span class="num"><b>19</b> &middot; 0 &middot; 0</span></li>
+      <li><span class="name" title="make, just, task, mise">Task runners</span><span class="num"><b>23</b> &middot; 2 &middot; 0</span></li>
+      <li><span class="name" title="Docker, Podman, image and dependency scanners">Containers</span><span class="num"><b>26</b> &middot; 8 &middot; 8</span></li>
+      <li><span class="name" title="kubectl, Helm, Kustomize, Argo CD, Flux, Istio">Kubernetes</span><span class="num"><b>43</b> &middot; 5 &middot; 24</span></li>
+      <li><span class="name" title="AWS, Google Cloud, Azure, IBM Cloud">Cloud CLIs</span><span class="num"><b>20</b> &middot; 0 &middot; 30</span></li>
+      <li><span class="name" title="Terraform, OpenTofu, Pulumi, CDK, Serverless, Ansible, Packer">Infrastructure as code</span><span class="num"><b>47</b> &middot; 10 &middot; 32</span></li>
+      <li><span class="name" title="Atlas, goose, Flyway, Prisma, Drizzle, Alembic, dbt, SQL tooling">Databases and migrations</span><span class="num"><b>29</b> &middot; 13 &middot; 11</span></li>
+      <li><span class="name" title="GitHub CLI, GitLab CLI, workflow linting">Forges and CI</span><span class="num"><b>20</b> &middot; 7 &middot; 14</span></li>
+      <li><span class="name" title="Every package registry, denied without exception">Publishing</span><span class="num"><b>0</b> &middot; 0 &middot; 15</span></li>
+      <li><span class="name" title="Search, data wrangling, docs linting, and everyday shell utilities">CLI utilities</span><span class="num"><b>73</b> &middot; 2 &middot; 0</span></li>
+    </ul>
+    <div class="cov-total"><span class="name">20 ecosystems</span><span class="num">649 allow &middot; 69 ask &middot; 253 deny</span></div>
+<!-- /gen:coverage -->
+  </div>
+</section>
+
+<section id="gotchas">
+  <div class="wrap">
+    <p class="label">Gotchas</p>
+    <h2>Two things that make most allowlists useless</h2>
+
+    <div class="gotcha" style="margin-top:26px">
+      <h3>The wrappers that are not stripped</h3>
+      <p>Claude Code strips <code>timeout</code>, <code>nice</code>, <code>nohup</code> and bare <code>xargs</code> before matching a rule. It does not strip <code>npx</code>, <code>uvx</code>, <code>docker exec</code> or <code>devbox run</code>, which execute whatever follows them.</p>
+      <pre class="block"><span class="dead">Bash(npx *)      approves any package on npm</span>
+Bash(npx tsc *)  what this repo writes instead</pre>
+      <p>Every wrapper rule here names the inner command, and CI fails the build on any that does not.</p>
+    </div>
+
+    <div class="gotcha">
+      <h3>A broad deny cannot carry exceptions</h3>
+      <p>Order is deny, then ask, then allow. First match wins, and specificity does not break ties.</p>
+      <pre class="block">deny  Bash(aws *)
+<span class="dead">allow Bash(aws s3 ls)   dead, the deny matched first</span></pre>
+      <p>So the cloud sections allow the read verbs and deny the specific mutating ones. CI simulates the evaluation order across all 971 rules and fails on any rule that can never fire. It found eight while this was being built.</p>
+    </div>
+
+    <p><a href="https://github.com/josipledic/never-ask-again/blob/main/docs/gotchas.md">The other three, plus the ones specific to each agent</a></p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="label">Why bother</p>
+    <h2>Why not just turn permissions off</h2>
+    <p class="prose" style="margin:16px 0 0">Because the failure mode is not the agent going rogue. It is the agent being confidently wrong at 2am, running <code>terraform state rm</code> on the wrong workspace because a stale plan said the resource was orphaned, and there being no undo.</p>
+    <p class="prose" style="margin:14px 0 0">Prompts are not there to catch malice. They are there to catch the thing you would also have caught, if you had been looking. An allowlist keeps them for exactly those cases and drops them everywhere else.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="label">How it is built</p>
+    <div class="pipeline">rules/*.toml &nbsp;&rarr;&nbsp; scripts/build.py &nbsp;&rarr;&nbsp; dist/&lt;agent&gt;/</div>
+    <p class="prose" style="margin:20px 0 0">One hand-maintained source, grouped by reason, compiled into six formats. Adding a rule is one line. CI runs every test fixture through a simulation of Claude Code's evaluation order and through the real <code>codex execpolicy</code> binary, then fails if a decision comes back inverted.</p>
+    <pre class="block">[[group]]
+decision = "deny"
+why = "Rewrites shared history. Run --force-with-lease yourself if you mean it."
+cmds = ["git push --force", "git push -f", "git push --mirror"]
+match = ["git push --force origin main"]
+not_match = ["git push origin main"]</pre>
+    <p class="prose">Python 3.11 or newer, standard library only. No dependencies to install and nothing to build before you can copy a file.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <ul class="footlinks">
+      <li><a href="https://github.com/josipledic/never-ask-again">Repository</a></li>
+      <li><a href="https://github.com/josipledic/never-ask-again/blob/main/INSTALL-AGENT.md">Install guide</a></li>
+      <li><a href="https://github.com/josipledic/never-ask-again/blob/main/CONTRIBUTING.md">Contributing</a></li>
+      <li><a href="https://github.com/josipledic/never-ask-again/issues">Issues</a></li>
+    </ul>
+    <p style="margin:0">MIT licensed. Rules are enforced by the harness, not by the model, which is what makes them worth having. Pair them with a sandbox.</p>
+  </div>
+</footer>
+
+<script>
+const AGENTS = [
+  {
+    id: "claude", name: "Claude Code",
+    config: "~/.claude/settings.json",
+    granularity: "full arguments",
+    docs: "https://github.com/josipledic/never-ask-again/blob/main/docs/agents/claude-code.md",
+    snippet: "curl -fsSL https://raw.githubusercontent.com/josipledic/never-ask-again/main/dist/claude/settings.json \\\n  -o ~/.claude/settings.json"
+  },
+  {
+    id: "codex", name: "Codex",
+    config: "~/.codex/rules/default.rules",
+    granularity: "full argv",
+    docs: "https://github.com/josipledic/never-ask-again/blob/main/docs/agents/codex.md",
+    snippet: "mkdir -p ~/.codex/rules\ncurl -fsSL https://raw.githubusercontent.com/josipledic/never-ask-again/main/dist/codex/default.rules \\\n  -o ~/.codex/rules/default.rules"
+  },
+  {
+    id: "opencode", name: "OpenCode",
+    config: "~/.config/opencode/opencode.json",
+    granularity: "full arguments",
+    docs: "https://github.com/josipledic/never-ask-again/blob/main/docs/agents/opencode.md",
+    snippet: "mkdir -p ~/.config/opencode\ncurl -fsSL https://raw.githubusercontent.com/josipledic/never-ask-again/main/dist/opencode/opencode.json \\\n  -o ~/.config/opencode/opencode.json"
+  },
+  {
+    id: "omp", name: "Oh My Pi",
+    config: "~/.omp/agent/config.yml",
+    granularity: "full arguments",
+    docs: "https://github.com/josipledic/never-ask-again/blob/main/docs/agents/oh-my-pi.md",
+    snippet: "mkdir -p ~/.omp/agent\ncurl -fsSL https://raw.githubusercontent.com/josipledic/never-ask-again/main/dist/omp/config.yml \\\n  -o ~/.omp/agent/config.yml"
+  },
+  {
+    id: "droid", name: "Droid",
+    config: "~/.factory/settings.json",
+    granularity: "literal commands",
+    docs: "https://github.com/josipledic/never-ask-again/blob/main/docs/agents/droid.md",
+    snippet: "mkdir -p ~/.factory\ncurl -fsSL https://raw.githubusercontent.com/josipledic/never-ask-again/main/dist/droid/settings.json \\\n  -o ~/.factory/settings.json"
+  },
+  {
+    id: "cursor", name: "Cursor CLI",
+    config: "~/.cursor/cli-config.json",
+    granularity: "first token only",
+    docs: "https://github.com/josipledic/never-ask-again/blob/main/docs/agents/cursor-cli.md",
+    snippet: "mkdir -p ~/.cursor\ncurl -fsSL https://raw.githubusercontent.com/josipledic/never-ask-again/main/dist/cursor/cli-config.json \\\n  -o ~/.cursor/cli-config.json"
+  }
+];
+
+const tabs = document.getElementById("tabs");
+
+function select(id) {
+  const agent = AGENTS.find(a => a.id === id);
+  document.getElementById("snippet").textContent = agent.snippet;
+  document.getElementById("m-config").textContent = agent.config;
+  document.getElementById("m-gran").textContent = agent.granularity;
+  const docs = document.getElementById("m-docs");
+  docs.href = agent.docs;
+  docs.textContent = agent.name + " notes";
+  for (const b of tabs.querySelectorAll("button")) {
+    b.setAttribute("aria-selected", String(b.dataset.id === id));
+  }
+}
+
+for (const agent of AGENTS) {
+  const li = document.createElement("li");
+  const button = document.createElement("button");
+  button.className = "tab";
+  button.type = "button";
+  button.role = "tab";
+  button.dataset.id = agent.id;
+  button.textContent = agent.name;
+  button.addEventListener("click", () => select(agent.id));
+  li.appendChild(button);
+  tabs.appendChild(li);
+}
+select(AGENTS[0].id);
+
+for (const button of document.querySelectorAll(".copy-btn")) {
+  button.addEventListener("click", async () => {
+    const text = document.getElementById(button.dataset.copy).textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+    }
+    const original = button.textContent;
+    button.textContent = "Copied";
+    setTimeout(() => { button.textContent = original; }, 1600);
+  });
+}
+</script>
+</body>
+</html>

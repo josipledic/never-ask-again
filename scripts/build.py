@@ -77,6 +77,77 @@ def render_readme(ecosystems: list[Ecosystem], current: str) -> str:
     return _splice(current, COVERAGE_START, COVERAGE_END, coverage_table(ecosystems))
 
 
+def _escape(text: str) -> str:
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def render_page(ecosystems: list[Ecosystem], current: str) -> str:
+    """Fill the generated regions of the landing page.
+
+    The counts on the page come from the same load() the configs do, so the
+    page cannot drift from the rules the way a hand-typed number would.
+    """
+    totals = {"allow": 0, "ask": 0, "deny": 0}
+    for eco in ecosystems:
+        for key, value in eco.counts().items():
+            totals[key] += value
+    total = sum(totals.values())
+
+    chips = [
+        f"{total} rules",
+        f"{len(ecosystems)} ecosystems",
+        f"{len(TARGETS)} agents",
+        "0 dependencies",
+        "MIT",
+    ]
+    chips_html = "\n".join(f'      <li class="chip">{c}</li>' for c in chips)
+
+    blurb = {
+        "allow": ("#d7d8cc", "Reversible and local."),
+        "ask": ("#f2e1d4", "Touches remote state or installs code."),
+        "deny": ("#dfd6de", "Destroys, escalates, or exfiltrates."),
+    }
+    buckets_html = "\n".join(
+        f'      <div class="bucket">\n'
+        f'        <span class="swatch" style="background:{blurb[k][0]}"></span>\n'
+        f'        <div class="k">{k}</div>\n'
+        f'        <div class="n">{totals[k]}</div>\n'
+        f"        <p>{blurb[k][1]}</p>\n"
+        f"      </div>"
+        for k in ("allow", "ask", "deny")
+    )
+
+    rows = []
+    for eco in ecosystems:
+        counts = eco.counts()
+        rows.append(
+            f'      <li><span class="name" title="{_escape(eco.description)}">'
+            f'{_escape(eco.name)}</span>'
+            f'<span class="num"><b>{counts["allow"]}</b> &middot; '
+            f'{counts["ask"]} &middot; {counts["deny"]}</span></li>'
+        )
+    coverage_html = (
+        '    <ul class="cov">\n'
+        + "\n".join(rows)
+        + "\n    </ul>\n"
+        + '    <div class="cov-total"><span class="name">'
+        + f"{len(ecosystems)} ecosystems</span>"
+        + f'<span class="num">{totals["allow"]} allow &middot; '
+        + f'{totals["ask"]} ask &middot; {totals["deny"]} deny</span></div>'
+    )
+
+    for start, end, body in (
+        ("<!-- gen:chips -->", "<!-- /gen:chips -->", chips_html),
+        ("<!-- gen:buckets -->", "<!-- /gen:buckets -->", buckets_html),
+        ("<!-- gen:coverage -->", "<!-- /gen:coverage -->", coverage_html),
+    ):
+        if start in current and end in current:
+            head, rest = current.split(start, 1)
+            _, tail = rest.split(end, 1)
+            current = f"{head}{start}\n{body}\n{end}{tail}"
+    return current
+
+
 def outputs(ecosystems: list[Ecosystem]) -> dict[Path, str]:
     files: dict[Path, str] = {
         DIST_DIR / target.PATH: target.render(ecosystems) for target in TARGETS
@@ -84,6 +155,9 @@ def outputs(ecosystems: list[Ecosystem]) -> dict[Path, str]:
     readme = ROOT / "README.md"
     if readme.exists():
         files[readme] = render_readme(ecosystems, readme.read_text())
+    page = ROOT / "docs/index.html"
+    if page.exists():
+        files[page] = render_page(ecosystems, page.read_text())
     return files
 
 
