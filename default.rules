@@ -1,0 +1,640 @@
+# Codex execpolicy rules. Place at ~/.codex/rules/default.rules
+#
+# decision = "allow"     -> run outside the sandbox without prompting
+# decision = "prompt"    -> ask every time
+# decision = "forbidden" -> block without prompting
+#
+# Most restrictive match wins: forbidden > prompt > allow.
+# pattern is a list of argv elements. A nested list is a union of
+# alternatives at that position, e.g. ["pr", ["view", "list"]].
+#
+# Test before trusting:
+#   codex execpolicy check --pretty --rules ~/.codex/rules/default.rules -- git add .
+
+# ---------------------------------------------------------------------------
+# version control
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = ["git", ["add", "commit", "switch", "branch", "fetch", "stash", "worktree", "bisect", "blame", "describe", "rev-parse", "ls-files", "shortlog", "range-diff"]],
+    decision = "allow",
+    justification = "Local, reversible git operations.",
+    match = ["git add .", "git commit -m fix", "git fetch origin"],
+)
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "prompt",
+    justification = "Publishes to a shared remote.",
+)
+
+prefix_rule(
+    pattern = ["git", "push", "--force"],
+    decision = "forbidden",
+    justification = "Rewrites shared history. Use --force-with-lease yourself.",
+)
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Destroys uncommitted work irrecoverably.",
+)
+
+prefix_rule(
+    pattern = ["git", ["clean", "filter-branch", "filter-repo"]],
+    decision = "forbidden",
+    justification = "Destroys untracked files or rewrites history.",
+)
+
+prefix_rule(
+    pattern = ["git", "config", "--global"],
+    decision = "forbidden",
+    justification = "Changes machine-wide git behaviour.",
+)
+
+prefix_rule(
+    pattern = ["jj", ["status", "log", "diff", "describe", "new", "squash"]],
+    decision = "allow",
+    justification = "Jujutsu operations are local and undoable.",
+)
+
+# ---------------------------------------------------------------------------
+# javascript and typescript
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = [["npm", "pnpm", "yarn", "bun"], ["run", "test"]],
+    decision = "allow",
+    justification = "Project scripts defined in the repo.",
+    match = ["npm run build", "pnpm test", "bun run dev"],
+)
+
+prefix_rule(
+    pattern = ["npm", "ci"],
+    decision = "allow",
+    justification = "Lockfile-exact install.",
+)
+
+prefix_rule(
+    pattern = [["npm", "pnpm", "yarn", "bun"], ["install", "add", "update", "upgrade"]],
+    decision = "prompt",
+    justification = "Package installs execute arbitrary lifecycle scripts.",
+)
+
+prefix_rule(
+    pattern = [["npm", "pnpm", "bun", "yarn"], "publish"],
+    decision = "forbidden",
+    justification = "Publishing a package is not reversible.",
+)
+
+prefix_rule(
+    pattern = [["tsc", "tsgo", "oxlint", "biome", "eslint", "prettier", "dprint", "vitest", "jest", "esbuild", "vite", "rspack", "turbo", "nx", "moon", "knip", "depcheck", "size-limit"]],
+    decision = "allow",
+    justification = "Type checkers, linters, formatters, bundlers and test runners.",
+)
+
+prefix_rule(
+    pattern = ["deno", ["task", "test", "check", "fmt", "lint", "info"]],
+    decision = "allow",
+    justification = "Deno operates under its own permission model.",
+)
+
+prefix_rule(
+    pattern = ["playwright", "test"],
+    decision = "allow",
+    justification = "Browser tests against local targets.",
+)
+
+# ---------------------------------------------------------------------------
+# go
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = ["go", ["build", "test", "vet", "fmt", "list", "doc", "generate", "tool"]],
+    decision = "allow",
+    justification = "Go toolchain read and build operations.",
+)
+
+prefix_rule(
+    pattern = ["go", "mod", ["tidy", "download", "verify", "graph", "why"]],
+    decision = "allow",
+    justification = "Module bookkeeping, no code execution.",
+)
+
+prefix_rule(
+    pattern = ["go", ["install", "get"]],
+    decision = "prompt",
+    justification = "Fetches and builds remote code.",
+)
+
+prefix_rule(
+    pattern = [["gofmt", "gofumpt", "goimports", "golangci-lint", "gotestsum", "govulncheck", "staticcheck", "gosec", "mockery", "sqlc", "buf"]],
+    decision = "allow",
+    justification = "Go ecosystem linters and generators.",
+)
+
+# ---------------------------------------------------------------------------
+# python
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = ["uv", ["sync", "lock", "tree", "export"]],
+    decision = "allow",
+    justification = "Deterministic environment management.",
+)
+
+prefix_rule(
+    pattern = ["uv", "run", ["pytest", "ruff", "ty", "mypy"]],
+    decision = "allow",
+    justification = "Runs a known checker inside the project environment.",
+)
+
+prefix_rule(
+    pattern = [["pytest", "ruff", "ty", "mypy", "pyright", "bandit", "pip-audit", "coverage"]],
+    decision = "allow",
+    justification = "Python test and static analysis tooling.",
+)
+
+prefix_rule(
+    pattern = [["pip", "uv", "poetry", "hatch"], ["install", "add"]],
+    decision = "prompt",
+    justification = "Package installs execute setup code.",
+)
+
+prefix_rule(
+    pattern = [["twine", "hatch", "poetry", "uv"], "publish"],
+    decision = "forbidden",
+    justification = "Publishing to an index is not reversible.",
+)
+
+prefix_rule(
+    pattern = ["alembic", ["current", "history", "check"]],
+    decision = "allow",
+    justification = "Read-only migration inspection.",
+)
+
+prefix_rule(
+    pattern = ["alembic", ["upgrade", "downgrade"]],
+    decision = "prompt",
+    justification = "Mutates a database schema.",
+)
+
+# ---------------------------------------------------------------------------
+# rust
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = ["cargo", ["build", "check", "test", "nextest", "clippy", "fmt", "doc", "tree", "bench", "metadata", "expand", "audit", "deny", "machete", "insta"]],
+    decision = "allow",
+    justification = "Cargo build, test and lint operations.",
+)
+
+prefix_rule(
+    pattern = ["cargo", ["install", "add"]],
+    decision = "prompt",
+    justification = "Fetches and compiles remote crates.",
+)
+
+prefix_rule(
+    pattern = ["cargo", ["publish", "yank"]],
+    decision = "forbidden",
+    justification = "Registry changes are not reversible.",
+)
+
+# ---------------------------------------------------------------------------
+# jvm, swift, dotnet, c and c++
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = [["./gradlew", "gradle"], ["build", "test", "check", "assemble", "lint", "tasks", "dependencies", "spotlessCheck", "spotlessApply", "ktlintCheck", "detekt", "koverVerify"]],
+    decision = "allow",
+    justification = "Gradle build and verification tasks.",
+)
+
+prefix_rule(
+    pattern = [["./mvnw", "mvn"], ["compile", "test", "verify", "package", "dependency:tree", "spotless:check", "spotless:apply"]],
+    decision = "allow",
+    justification = "Maven build lifecycle up to verify.",
+)
+
+prefix_rule(
+    pattern = [["gradle", "./gradlew", "mvn", "./mvnw"], ["publish", "deploy"]],
+    decision = "forbidden",
+    justification = "Artifact publication is not reversible.",
+)
+
+prefix_rule(
+    pattern = [["bazel", "bazelisk", "buck2", "pants"], ["build", "test", "query", "cquery", "aquery", "info", "targets", "audit", "lint", "check", "dependencies"]],
+    decision = "allow",
+    justification = "Hermetic build systems, sandboxed by design.",
+)
+
+prefix_rule(
+    pattern = ["bazel", "clean", "--expunge"],
+    decision = "forbidden",
+    justification = "Wipes the entire build cache.",
+)
+
+prefix_rule(
+    pattern = ["dotnet", ["build", "test", "restore", "format"]],
+    decision = "allow",
+    justification = "Standard dotnet development loop.",
+)
+
+prefix_rule(
+    pattern = ["swift", ["build", "test", "format"]],
+    decision = "allow",
+    justification = "Swift package operations.",
+)
+
+prefix_rule(
+    pattern = [["swiftlint", "swiftformat", "ktlint", "detekt", "clang-format", "clang-tidy", "cppcheck", "shellcheck", "shfmt", "yamllint", "actionlint", "taplo", "markdownlint", "typos", "sqlfluff"]],
+    decision = "allow",
+    justification = "Linters and formatters.",
+)
+
+prefix_rule(
+    pattern = [["cmake", "ctest", "ninja", "meson"]],
+    decision = "allow",
+    justification = "Native build and test drivers.",
+)
+
+# ---------------------------------------------------------------------------
+# task runners
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = ["make", ["build", "test", "lint", "check", "fmt", "format", "generate", "vet", "ci", "dev"]],
+    decision = "allow",
+    justification = "Conventional target names only. Bare make can run anything.",
+    not_match = ["make deploy", "make release"],
+)
+
+prefix_rule(
+    pattern = ["just", ["--list", "build", "test", "lint", "fmt", "check"]],
+    decision = "allow",
+    justification = "Conventional recipe names only.",
+)
+
+prefix_rule(
+    pattern = ["task", ["--list", "build", "test", "lint"]],
+    decision = "allow",
+    justification = "Conventional task names only.",
+)
+
+# ---------------------------------------------------------------------------
+# containers
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = [["docker", "podman"], ["build", "ps", "images", "inspect", "logs", "diff", "top"]],
+    decision = "allow",
+    justification = "Build and inspect, no runtime side effects.",
+)
+
+prefix_rule(
+    pattern = ["docker", "compose", ["build", "config", "ps", "logs", "top"]],
+    decision = "allow",
+    justification = "Compose inspection and image builds.",
+)
+
+prefix_rule(
+    pattern = ["docker", ["run", "exec", "up", "push"]],
+    decision = "prompt",
+    justification = "Starts processes or writes to a registry.",
+)
+
+prefix_rule(
+    pattern = ["docker", ["system", "volume", "image", "builder"], "prune"],
+    decision = "forbidden",
+    justification = "Deletes local state that is expensive to rebuild.",
+)
+
+prefix_rule(
+    pattern = [["trivy", "grype", "syft", "osv-scanner", "semgrep", "gitleaks", "hadolint"]],
+    decision = "allow",
+    justification = "Read-only security scanners.",
+)
+
+# ---------------------------------------------------------------------------
+# kubernetes
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = ["kubectl", ["get", "describe", "logs", "explain", "top", "events", "diff", "kustomize", "api-resources", "api-versions", "cluster-info", "version"]],
+    decision = "allow",
+    justification = "Read-only cluster inspection.",
+)
+
+prefix_rule(
+    pattern = ["kubectl", ["delete", "apply", "replace", "patch", "edit", "scale", "drain", "cordon", "taint", "exec", "attach", "create"]],
+    decision = "forbidden",
+    justification = "Mutates or opens a shell into a live cluster. Do this yourself.",
+)
+
+prefix_rule(
+    pattern = ["helm", ["template", "lint", "list", "get", "diff", "show"]],
+    decision = "allow",
+    justification = "Render and inspect charts without releasing.",
+)
+
+prefix_rule(
+    pattern = ["helm", ["install", "upgrade", "uninstall", "rollback", "delete"]],
+    decision = "forbidden",
+    justification = "Changes live releases.",
+)
+
+prefix_rule(
+    pattern = [["kustomize", "kubeconform", "kube-linter", "kube-score", "conftest", "opa", "stern"]],
+    decision = "allow",
+    justification = "Manifest validation and log tailing.",
+)
+
+prefix_rule(
+    pattern = ["argocd", "app", ["list", "get", "diff"]],
+    decision = "allow",
+    justification = "Read-only GitOps inspection.",
+)
+
+prefix_rule(
+    pattern = ["argocd", "app", ["sync", "delete", "rollback"]],
+    decision = "forbidden",
+    justification = "Triggers real deployments.",
+)
+
+# ---------------------------------------------------------------------------
+# infrastructure as code
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = [["terraform", "tofu", "terragrunt"], ["fmt", "validate", "plan", "show", "output", "graph", "providers", "hclfmt", "version"]],
+    decision = "allow",
+    justification = "Plan and inspect only.",
+)
+
+prefix_rule(
+    pattern = [["terraform", "tofu", "terragrunt"], ["apply", "destroy", "import", "taint", "force-unlock"]],
+    decision = "forbidden",
+    justification = "Mutates real infrastructure.",
+)
+
+prefix_rule(
+    pattern = ["terraform", "state", ["list", "show"]],
+    decision = "allow",
+    justification = "Read-only state inspection.",
+)
+
+prefix_rule(
+    pattern = ["terraform", "state", ["rm", "mv", "push"]],
+    decision = "forbidden",
+    justification = "Corrupting state is worse than a bad apply.",
+)
+
+prefix_rule(
+    pattern = [["tflint", "tfsec", "checkov", "infracost"]],
+    decision = "allow",
+    justification = "Static analysis and cost estimation.",
+)
+
+prefix_rule(
+    pattern = ["pulumi", ["preview", "stack", "config", "about"]],
+    decision = "allow",
+    justification = "Preview and inspect only.",
+)
+
+prefix_rule(
+    pattern = ["pulumi", ["up", "destroy"]],
+    decision = "forbidden",
+    justification = "Mutates real infrastructure.",
+)
+
+prefix_rule(
+    pattern = ["cdk", ["synth", "diff", "list"]],
+    decision = "allow",
+    justification = "Synthesis and diffing are local.",
+)
+
+prefix_rule(
+    pattern = ["cdk", ["deploy", "destroy", "bootstrap"]],
+    decision = "forbidden",
+    justification = "Mutates real infrastructure.",
+)
+
+prefix_rule(
+    pattern = ["ansible-playbook"],
+    decision = "forbidden",
+    justification = "Configures real hosts. Use --check yourself.",
+)
+
+# ---------------------------------------------------------------------------
+# cloud provider CLIs: read verbs allowed, mutations blocked
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = ["aws", "sts", "get-caller-identity"],
+    decision = "allow",
+    justification = "Confirms which identity is active.",
+)
+
+prefix_rule(
+    pattern = ["aws", "s3", "ls"],
+    decision = "allow",
+    justification = "Bucket listing only.",
+)
+
+prefix_rule(
+    pattern = ["aws", "logs", "tail"],
+    decision = "allow",
+    justification = "Log reading.",
+)
+
+prefix_rule(
+    pattern = ["aws", "iam"],
+    decision = "forbidden",
+    justification = "Identity and access changes are never delegated.",
+)
+
+prefix_rule(
+    pattern = ["aws", "s3", ["rm", "rb", "mv", "sync"]],
+    decision = "forbidden",
+    justification = "Deletes or overwrites object storage.",
+)
+
+prefix_rule(
+    pattern = [["gcloud", "az", "ibmcloud"], "auth"],
+    decision = "forbidden",
+    justification = "Credential state belongs to you.",
+)
+
+prefix_rule(
+    pattern = ["gcloud", "iam"],
+    decision = "forbidden",
+    justification = "Identity and access changes are never delegated.",
+)
+
+prefix_rule(
+    pattern = ["ibmcloud", "ce", ["application", "job", "build", "project"], ["list", "get", "logs"]],
+    decision = "allow",
+    justification = "Read-only Code Engine inspection.",
+)
+
+# ---------------------------------------------------------------------------
+# databases and migrations
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = [["prisma", "drizzle-kit"], ["validate", "format", "generate", "check", "diff", "status"]],
+    decision = "allow",
+    justification = "Schema codegen and validation.",
+)
+
+prefix_rule(
+    pattern = ["prisma", ["migrate", "db"], ["reset", "execute", "push"]],
+    decision = "forbidden",
+    justification = "Can drop a database.",
+)
+
+prefix_rule(
+    pattern = ["atlas", ["schema", "migrate"], ["inspect", "lint", "status", "validate"]],
+    decision = "allow",
+    justification = "Read-only schema tooling.",
+)
+
+prefix_rule(
+    pattern = [["psql", "mysql", "mongosh", "redis-cli", "sqlite3"]],
+    decision = "prompt",
+    justification = "An interactive database shell can do anything.",
+)
+
+prefix_rule(
+    pattern = ["dbt", ["parse", "compile", "test", "docs"]],
+    decision = "allow",
+    justification = "Compilation and tests against the dev target.",
+)
+
+prefix_rule(
+    pattern = ["dbt", "run-operation"],
+    decision = "forbidden",
+    justification = "Executes arbitrary SQL macros.",
+)
+
+# ---------------------------------------------------------------------------
+# forges and CI
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = ["gh", ["pr", "issue", "run", "workflow", "repo", "release", "search", "cache"], ["view", "list", "diff", "checks", "status", "watch"]],
+    decision = "allow",
+    justification = "Read-only forge queries.",
+    match = ["gh pr view 42", "gh run list --limit 5"],
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", ["create", "merge", "close"]],
+    decision = "prompt",
+    justification = "Visible to your team.",
+)
+
+prefix_rule(
+    pattern = ["gh", ["secret", "variable", "auth"]],
+    decision = "forbidden",
+    justification = "Secret and credential surfaces.",
+)
+
+prefix_rule(
+    pattern = ["gh", "repo", ["delete", "archive"]],
+    decision = "forbidden",
+    justification = "Irreversible.",
+)
+
+prefix_rule(
+    pattern = ["gh", "api"],
+    decision = "prompt",
+    justification = "Can reach any endpoint with any method.",
+)
+
+prefix_rule(
+    pattern = [["glab"], ["mr", "ci"], ["view", "list", "status"]],
+    decision = "allow",
+    justification = "Read-only GitLab queries.",
+)
+
+# ---------------------------------------------------------------------------
+# search, data and text tooling
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = [["rg", "fd", "jq", "gojq", "yq", "sd", "delta", "difft", "tokei", "scc", "hyperfine", "jless", "mlr", "bat", "eza", "tree", "duckdb", "pandoc", "lychee", "vale"]],
+    decision = "allow",
+    justification = "Search, inspection and text processing.",
+)
+
+prefix_rule(
+    pattern = [["spectral", "redocly", "graphql-inspector", "openapi-generator-cli"]],
+    decision = "allow",
+    justification = "API schema linting and diffing.",
+)
+
+# ---------------------------------------------------------------------------
+# never, under any framing
+# ---------------------------------------------------------------------------
+
+prefix_rule(
+    pattern = [["sudo", "doas", "su"]],
+    decision = "forbidden",
+    justification = "Privilege escalation.",
+)
+
+prefix_rule(
+    pattern = ["rm", "-rf"],
+    decision = "forbidden",
+    justification = "Recursive deletion.",
+)
+
+prefix_rule(
+    pattern = [["dd", "mkfs", "diskutil", "fdisk", "shred"]],
+    decision = "forbidden",
+    justification = "Destroys filesystems.",
+)
+
+prefix_rule(
+    pattern = [["curl", "wget", "nc", "ncat", "socat"]],
+    decision = "forbidden",
+    justification = "Network egress and the classic pipe-to-shell path. Use the web tools instead.",
+)
+
+prefix_rule(
+    pattern = [["ssh", "scp", "sftp", "rsync"]],
+    decision = "forbidden",
+    justification = "Reaches other machines.",
+)
+
+prefix_rule(
+    pattern = [["gpg", "pass", "op", "vault", "security", "ssh-keygen", "ssh-add"]],
+    decision = "forbidden",
+    justification = "Secret material.",
+)
+
+prefix_rule(
+    pattern = [["systemctl", "launchctl", "service", "crontab", "at"]],
+    decision = "forbidden",
+    justification = "Persistence and system services.",
+)
+
+prefix_rule(
+    pattern = [["killall", "pkill", "shutdown", "reboot"]],
+    decision = "forbidden",
+    justification = "Kills your session or your machine.",
+)
+
+prefix_rule(
+    pattern = [["chown", "chmod"]],
+    decision = "forbidden",
+    justification = "Permission changes should be deliberate.",
+)
+
+prefix_rule(
+    pattern = [["claude", "codex"]],
+    decision = "forbidden",
+    justification = "Nested agents inherit a different permission set. No recursion.",
+)
