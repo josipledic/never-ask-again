@@ -1,0 +1,28 @@
+name = "Swift and mobile"
+slug = "mobile"
+description = "Swift, Xcode, Android, Flutter, Dart"
+order = 80
+
+[[group]]
+decision = "allow"
+why = "Swift package builds and tests against the committed Package.resolved."
+cmds = ["swift build", "swift test", "swift format", "swift package describe", "swiftlint", "swiftformat"]
+exact = ["swift package resolve"]
+
+[[group]]
+decision = "allow"
+why = "Xcode builds and simulator inspection. Nothing is signed or shipped."
+cmds = ["xcodebuild -list", "xcodebuild -showBuildSettings", "xcodebuild build", "xcodebuild test", "xcrun simctl list", "tuist generate"]
+exact = ["fastlane lanes"]
+
+[[group]]
+decision = "allow"
+why = "Reads connected Android devices and their logs."
+cmds = ["adb logcat"]
+exact = ["adb devices"]
+
+[[group]]
+decision = "allow"
+why = "Flutter and Dart analysis, tests and builds. Output goes to the build directory."
+cmds = ["flutter analyze", "flutter test", "flutter build", "dart analyze", "dart format", "dart test"]
+exact = ["flutter pub get", "kotlin -version"]

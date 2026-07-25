@@ -1,0 +1,60 @@
+name = "Kubernetes"
+slug = "kubernetes"
+description = "kubectl, Helm, Kustomize, Argo CD, Flux, Istio"
+order = 130
+
+# Note: kubectl apply is denied outright, so an allow for
+# "kubectl apply --dry-run=client" could never fire. Deny is evaluated first
+# and specificity does not break ties. Use "kubectl diff" instead, which is
+# allowed below and answers the same question.
+
+[[group]]
+decision = "allow"
+why = "Read verbs. They describe cluster state without changing it."
+cmds = ["kubectl get", "kubectl describe", "kubectl logs", "kubectl explain", "kubectl top", "kubectl events", "kubectl diff", "kubectl kustomize", "kubectl api-resources", "kubectl version", "kubectl auth can-i"]
+exact = ["kubectl api-versions", "kubectl cluster-info", "kubectl config get-contexts", "kubectl config current-context"]
+match = ["kubectl get pods -A", "kubectl logs deploy/api"]
+not_match = ["kubectl delete pod api"]
+
+[[group]]
+decision = "allow"
+why = "Renders manifests locally. Nothing is sent to a cluster."
+cmds = ["kustomize build", "helm template", "helm lint", "helm show", "helm dependency list", "kubeconform", "kube-linter lint", "kube-score score", "conftest test", "opa eval", "opa fmt", "skaffold diagnose", "skaffold render"]
+
+[[group]]
+decision = "allow"
+why = "Read-only queries against the cluster or the GitOps controller."
+cmds = ["helm list", "helm get values", "helm get manifest", "helm diff", "stern", "argocd app list", "argocd app get", "argocd app diff", "flux get", "flux diff", "istioctl analyze", "istioctl proxy-status", "linkerd check", "cilium status"]
+exact = ["helm repo list"]
+
+[[group]]
+decision = "ask"
+why = "Opens a tunnel into the cluster or copies files across the boundary."
+cmds = ["kubectl port-forward", "kubectl cp"]
+
+[[group]]
+decision = "ask"
+why = "Changes what is running, but through a reviewable release or reconciliation."
+cmds = ["helm upgrade", "argocd app sync", "flux reconcile"]
+
+[[group]]
+decision = "deny"
+why = "Mutating verbs against a live cluster. There is no local undo for any of them."
+cmds = ["kubectl delete", "kubectl apply", "kubectl replace", "kubectl patch", "kubectl edit", "kubectl scale", "kubectl drain", "kubectl cordon", "kubectl taint", "kubectl create", "kubectl rollout undo"]
+match = ["kubectl delete ns production"]
+
+[[group]]
+decision = "deny"
+why = "A shell in a pod is a shell, with that pod's service account and network position."
+cmds = ["kubectl exec", "kubectl attach"]
+match = ["kubectl exec -it pod -- /bin/sh"]
+
+[[group]]
+decision = "deny"
+why = "Silently repoints every later command at a different cluster."
+cmds = ["kubectl config use-context", "kubectl config set"]
+
+[[group]]
+decision = "deny"
+why = "Installs, removes or rolls back releases and controllers."
+cmds = ["helm install", "helm uninstall", "helm rollback", "helm delete", "argocd app delete", "argocd app rollback", "flux suspend", "flux uninstall", "istioctl uninstall"]

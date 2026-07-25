@@ -1,0 +1,51 @@
+name = "Databases and migrations"
+slug = "databases"
+description = "Atlas, goose, Flyway, Prisma, Drizzle, Alembic, dbt, SQL tooling"
+order = 160
+
+[[group]]
+decision = "allow"
+why = "Migration status and validation. They read the schema and the migration table."
+cmds = ["atlas schema inspect", "atlas migrate lint", "atlas migrate status", "atlas migrate validate", "goose status", "goose validate", "dbmate status", "flyway info", "flyway validate", "liquibase status", "alembic history"]
+exact = ["alembic current", "alembic check"]
+match = ["atlas migrate status"]
+not_match = ["atlas schema apply"]
+
+[[group]]
+decision = "allow"
+why = "Generates client code and migration diffs into the working tree. Nothing reaches a database."
+cmds = ["prisma validate", "prisma format", "prisma generate", "prisma migrate diff", "prisma migrate status", "drizzle-kit generate", "drizzle-kit check"]
+
+[[group]]
+decision = "allow"
+why = "SQL linting and formatting."
+cmds = ["sqlfluff lint", "sqlfluff fix", "sqlfmt"]
+
+[[group]]
+decision = "allow"
+why = "dbt compilation and the dev target only. Production targets are not named here."
+cmds = ["dbt parse", "dbt compile", "dbt build --target dev", "dbt test --target dev", "dbt docs generate"]
+
+[[group]]
+decision = "allow"
+# sqlite3 is gated as a whole under ask below, so a narrower allow for
+# "sqlite3 <file> .schema" could never fire: ask is evaluated before allow.
+why = "Local, file-backed query engine."
+cmds = ["duckdb -c"]
+
+[[group]]
+decision = "ask"
+why = "Opens an interactive session against a database that may well be production."
+cmds = ["psql", "mysql", "mongosh", "redis-cli", "sqlite3"]
+match = ["psql postgres://prod/db"]
+
+[[group]]
+decision = "ask"
+why = "Applies a migration forward. Reviewable, but it changes a live schema."
+cmds = ["alembic upgrade", "atlas migrate apply", "goose up", "prisma migrate dev", "prisma db push", "drizzle-kit push", "dbt run", "dbt seed"]
+
+[[group]]
+decision = "deny"
+why = "Drops, resets or rolls back a schema. The data that was there is gone."
+cmds = ["prisma migrate reset", "prisma db execute", "drizzle-kit drop", "atlas schema apply", "goose down", "goose reset", "flyway clean", "flyway migrate", "liquibase dropAll", "alembic downgrade", "dbt run-operation"]
+match = ["prisma migrate reset --force", "flyway clean"]

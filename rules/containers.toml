@@ -1,0 +1,42 @@
+name = "Containers"
+slug = "containers"
+description = "Docker, Podman, image and dependency scanners"
+order = 120
+
+[[group]]
+decision = "allow"
+why = "Builds an image from a Dockerfile already in the repository."
+cmds = ["docker build", "docker compose build", "docker buildx bake --print", "podman build"]
+
+[[group]]
+decision = "allow"
+why = "Read-only inspection of containers, images and logs."
+cmds = ["docker ps", "docker images", "docker inspect", "docker logs", "docker diff", "docker top", "docker stats --no-stream", "docker compose config", "docker compose ps", "docker compose logs", "docker compose top", "podman ps", "podman images"]
+match = ["docker ps -a", "docker logs mycontainer"]
+
+[[group]]
+decision = "allow"
+why = "Scanners. They read images and filesystems and report."
+cmds = ["hadolint", "trivy fs", "trivy image", "trivy config", "grype", "syft", "osv-scanner", "semgrep scan", "cosign verify"]
+
+[[group]]
+decision = "ask"
+why = "Starts a container, which is a process with its own view of the filesystem and network. docker exec is a shell."
+cmds = ["docker run", "docker exec", "docker compose up", "docker compose down", "podman run"]
+match = ["docker run -v /:/host alpine sh"]
+
+[[group]]
+decision = "ask"
+why = "Removes containers and images, or pushes one to a registry."
+cmds = ["docker rm", "docker rmi", "docker push"]
+
+[[group]]
+decision = "deny"
+why = "Prunes shared local state. Named volumes hold databases you cannot rebuild."
+cmds = ["docker system prune", "docker volume prune", "docker volume rm", "docker image prune", "docker builder prune", "docker network rm", "podman system prune"]
+match = ["docker volume prune -f"]
+
+[[group]]
+decision = "deny"
+why = "Writes registry credentials to the Docker config file."
+cmds = ["docker login"]

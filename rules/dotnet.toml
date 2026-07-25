@@ -1,0 +1,12 @@
+name = ".NET"
+slug = "dotnet"
+description = "dotnet CLI"
+order = 70
+
+[[group]]
+decision = "allow"
+why = "Builds, tests and restores against the committed lock and project files."
+cmds = ["dotnet build", "dotnet test", "dotnet restore", "dotnet format", "dotnet list package"]
+exact = ["dotnet --info"]
+match = ["dotnet test"]
+not_match = ["dotnet nuget push"]

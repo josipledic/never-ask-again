@@ -1,0 +1,32 @@
+name = "Rust"
+slug = "rust"
+description = "cargo, clippy, nextest, cargo-deny, insta"
+order = 50
+
+[[group]]
+decision = "allow"
+why = "Compiles and tests against the committed Cargo.lock. Output goes to target/."
+cmds = ["cargo build", "cargo check", "cargo test", "cargo nextest run", "cargo bench", "cargo doc"]
+match = ["cargo test --all-features"]
+
+[[group]]
+decision = "allow"
+why = "Linting and formatting. Clippy is analysis, fmt rewrites formatting only."
+cmds = ["cargo clippy", "cargo fmt", "rustfmt"]
+
+[[group]]
+decision = "allow"
+why = "Read-only inspection of the dependency graph and expanded source."
+cmds = ["cargo tree", "cargo metadata", "cargo expand", "cargo audit", "cargo deny check", "cargo machete", "cargo sqlx prepare --check"]
+exact = ["rustc --version"]
+
+[[group]]
+decision = "allow"
+why = "Snapshot testing. insta review edits committed snapshot files, which git can undo."
+cmds = ["cargo insta test", "cargo insta review", "wasm-pack build"]
+
+[[group]]
+decision = "ask"
+why = "Resolves new crates from the registry and compiles their build scripts, which run as you."
+cmds = ["cargo add", "cargo install"]
+match = ["cargo install ripgrep"]

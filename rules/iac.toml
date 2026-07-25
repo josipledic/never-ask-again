@@ -1,0 +1,75 @@
+name = "Infrastructure as code"
+slug = "iac"
+description = "Terraform, OpenTofu, Pulumi, CDK, Serverless, Ansible, Packer"
+order = 150
+
+# terraform init, wrangler d1 execute and ansible-playbook are gated as a whole
+# below. Narrower allows for their safe flags (init -backend=false,
+# d1 execute --local, playbook --check) are deliberately absent: ask and deny
+# are evaluated before allow, so those entries could never fire.
+
+[[group]]
+decision = "allow"
+why = "Plan, validate and format. They read state and print a diff without applying it."
+cmds = ["terraform fmt", "terraform validate", "terraform plan", "terraform show", "terraform output", "terraform graph", "terraform providers", "tofu fmt", "tofu validate", "tofu plan", "tofu show", "terragrunt plan", "terragrunt validate", "terragrunt hclfmt", "terragrunt output"]
+exact = ["terraform version"]
+match = ["terraform plan -out=tfplan"]
+not_match = ["terraform apply"]
+
+[[group]]
+decision = "allow"
+why = "Read-only state inspection. The mutating state subcommands are denied below."
+cmds = ["terraform state list", "terraform state show"]
+
+[[group]]
+decision = "allow"
+why = "Static analysis and cost estimation of infrastructure code."
+cmds = ["tflint", "tfsec", "checkov -d", "checkov -f", "infracost breakdown", "infracost diff", "ansible-lint", "ansible-inventory --list", "packer validate", "packer fmt"]
+
+[[group]]
+decision = "allow"
+why = "Previews and synthesis. They render what would be deployed."
+cmds = ["pulumi preview", "pulumi stack", "pulumi config", "cdk synth", "cdk diff", "cdk list", "cdktf synth", "sam validate", "sam build", "serverless print"]
+exact = ["pulumi about"]
+
+[[group]]
+decision = "allow"
+why = "Edge platform builds and read-only inspection."
+cmds = ["wrangler types", "wrangler tail", "vercel build", "vercel env ls", "netlify build", "fly status", "fly logs", "fly config show"]
+
+[[group]]
+decision = "ask"
+why = "Downloads providers and modules from a registry, or reaches out to reconcile remote state."
+cmds = ["terraform init", "terraform import", "terraform refresh"]
+
+[[group]]
+decision = "ask"
+why = "Deploys. Reviewable, reversible with effort, but it changes what is running in production."
+cmds = ["pulumi up", "cdk deploy", "vercel deploy", "netlify deploy", "fly deploy", "wrangler deploy"]
+
+[[group]]
+decision = "ask"
+why = "Runs SQL against a D1 database. The --local flag makes it safe, but ask is evaluated before allow so the gate has to sit on the whole command."
+cmds = ["wrangler d1 execute"]
+
+[[group]]
+decision = "deny"
+why = "Applies or destroys real infrastructure."
+cmds = ["terraform apply", "terraform destroy", "tofu apply", "tofu destroy", "terragrunt apply", "terragrunt destroy", "terragrunt run-all", "pulumi destroy", "cdk destroy", "cdk bootstrap", "sam deploy", "serverless deploy", "serverless remove", "ansible-playbook"]
+match = ["terraform destroy -auto-approve"]
+
+[[group]]
+decision = "deny"
+why = "Corrupts or discards Terraform state. Worse than a bad apply, because the recovery path runs through the state file you just broke."
+cmds = ["terraform state rm", "terraform state mv", "terraform state push", "terraform force-unlock", "terraform taint", "terraform workspace delete", "pulumi stack rm"]
+match = ["terraform state rm aws_db_instance.main"]
+
+[[group]]
+decision = "deny"
+why = "Destroys hosted environments or resets a hosted database."
+cmds = ["flyctl destroy", "fly destroy", "supabase db reset", "wrangler kv:key delete", "wrangler r2 object delete"]
+
+[[group]]
+decision = "deny"
+why = "Writes production secrets and environment variables, or promotes a build to production."
+cmds = ["fly secrets", "vercel env add", "vercel env rm", "vercel --prod", "netlify env:set", "wrangler secret"]

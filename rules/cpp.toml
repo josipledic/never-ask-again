@@ -1,0 +1,25 @@
+name = "C and C++"
+slug = "cpp"
+description = "CMake, Ninja, Meson, clang tooling, Zig"
+order = 90
+
+[[group]]
+decision = "allow"
+why = "Configures and builds into the build directory."
+cmds = ["cmake -S * -B", "cmake --build", "cmake --preset", "ninja -n", "ninja", "meson setup", "meson compile", "zig build"]
+match = ["cmake --build build"]
+
+[[group]]
+decision = "allow"
+why = "Test runners executing the repository's own tests."
+cmds = ["ctest", "meson test", "zig test"]
+
+[[group]]
+decision = "allow"
+why = "Formatters and static analysers. Rewrites formatting at most."
+cmds = ["clang-format", "clang-tidy", "cppcheck", "iwyu_tool", "zig fmt"]
+
+[[group]]
+decision = "allow"
+why = "Dependency inspection and package installs into the local build tree."
+cmds = ["conan install", "vcpkg list"]

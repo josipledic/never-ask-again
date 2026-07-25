@@ -1,0 +1,46 @@
+name = "Forges and CI"
+slug = "forges"
+description = "GitHub CLI, GitLab CLI, workflow linting"
+order = 170
+
+[[group]]
+decision = "allow"
+why = "Read-only queries against the forge API."
+cmds = ["gh pr view", "gh pr list", "gh pr diff", "gh pr checks", "gh pr status", "gh issue view", "gh issue list", "gh run view", "gh run list", "gh run watch", "gh workflow list", "gh repo view", "gh release list", "gh search", "gh cache list", "glab mr view", "glab mr list", "glab ci status"]
+match = ["gh pr view 42", "gh run list --limit 5"]
+not_match = ["gh pr merge 42"]
+
+[[group]]
+decision = "allow"
+# "act -l" is not listed here: act is gated under ask below, and ask is
+# evaluated before allow, so the narrower entry could never fire.
+why = "Workflow linting, locally."
+cmds = ["actionlint"]
+exact = ["buildkite-agent --version"]
+
+[[group]]
+decision = "ask"
+why = "Creates or resolves something other people will see and get notified about."
+cmds = ["gh pr create", "gh pr merge", "gh pr close", "gh workflow run", "gh run cancel", "glab mr create"]
+
+[[group]]
+decision = "ask"
+why = "Runs a workflow locally in a container with your environment."
+cmds = ["act"]
+
+[[group]]
+decision = "deny"
+why = "Reads or writes CI secrets and auth tokens. Printing one to the transcript leaks it."
+cmds = ["gh secret", "gh variable", "gh auth", "glab token"]
+match = ["gh secret list"]
+
+[[group]]
+decision = "deny"
+why = "Deletes or archives a repository, or publishes a release. None of it is undoable."
+cmds = ["gh release create", "gh release delete", "gh repo delete", "gh repo archive"]
+
+[[group]]
+decision = "deny"
+why = "Raw API calls with a write method bypass every other gh rule above."
+cmds = ["gh api -X DELETE", "gh api --method DELETE", "gh api -X POST", "gh api --method POST", "gh api -X PATCH", "gh api -X PUT"]
+match = ["gh api -X DELETE /repos/owner/name"]

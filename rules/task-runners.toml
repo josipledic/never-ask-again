@@ -1,0 +1,27 @@
+name = "Task runners"
+slug = "task-runners"
+description = "make, just, task, mise"
+order = 110
+
+[[group]]
+decision = "allow"
+why = "Conventional target names only. A bare Bash(make *) would allow any target, including one added in the same session."
+cmds = ["make -n"]
+exact = ["make lint", "make test", "make build", "make check", "make fmt", "make format", "make generate", "make vet", "make ci", "make dev"]
+match = ["make test"]
+not_match = ["make deploy"]
+
+[[group]]
+decision = "allow"
+why = "Same reasoning as make: named targets, never a wildcard."
+exact = ["just --list", "just lint", "just test", "just build", "just fmt", "just check", "task --list", "task lint", "task test", "task build"]
+
+[[group]]
+decision = "allow"
+why = "Reads the configured toolchain versions."
+exact = ["mise tasks", "mise current"]
+
+[[group]]
+decision = "ask"
+why = "Downloads and installs a toolchain, running the vendor's install script."
+cmds = ["mise install", "asdf install"]

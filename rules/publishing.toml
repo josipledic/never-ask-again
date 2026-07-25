@@ -1,0 +1,15 @@
+name = "Publishing"
+slug = "publishing"
+description = "Every package registry, denied without exception"
+order = 180
+
+# There is no undo for a published artifact. npm deprecates rather than
+# deletes, crates.io yanks but keeps the tarball, PyPI refuses to reuse a
+# version number. This section has no allow and no ask entries by design.
+
+[[group]]
+decision = "deny"
+why = "Publishes to a public registry. Once a version number is taken it is taken forever."
+cmds = ["npm publish", "pnpm publish", "yarn npm publish", "bun publish", "cargo publish", "cargo yank", "twine upload", "uv publish", "poetry publish", "hatch publish", "mvn deploy", "gradle publish", "./gradlew publish", "dotnet nuget push", "gem push"]
+match = ["npm publish --access public", "cargo publish"]
+not_match = ["npm pack --dry-run"]

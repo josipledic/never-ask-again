@@ -1,0 +1,194 @@
+name = "Core"
+slug = "core"
+description = "Tool-level rules, secret files, and the deny block that applies to every stack"
+order = 0
+
+# ---------------------------------------------------------------------------
+# tool-level allows
+# ---------------------------------------------------------------------------
+
+[[group]]
+decision = "allow"
+tool = "Read"
+why = "Reading, searching and globbing the workspace is inert."
+
+[[group]]
+decision = "allow"
+tool = "Grep"
+why = "Reading, searching and globbing the workspace is inert."
+
+[[group]]
+decision = "allow"
+tool = "Glob"
+why = "Reading, searching and globbing the workspace is inert."
+
+[[group]]
+decision = "allow"
+tool = "WebFetch"
+why = "Documentation sources that are worth reading without a prompt."
+args = [
+  "domain:docs.claude.com",
+  "domain:code.claude.com",
+  "domain:developers.openai.com",
+  "domain:developer.mozilla.org",
+  "domain:pkg.go.dev",
+  "domain:docs.rs",
+  "domain:docs.python.org",
+  "domain:registry.terraform.io",
+  "domain:kubernetes.io",
+  "domain:github.com",
+  "domain:raw.githubusercontent.com",
+  "domain:stackoverflow.com",
+]
+
+# ---------------------------------------------------------------------------
+# system package managers
+# ---------------------------------------------------------------------------
+
+[[group]]
+decision = "ask"
+why = "Installs software machine-wide and runs vendor scripts as you."
+cmds = ["brew", "apt", "apt-get"]
+
+# ---------------------------------------------------------------------------
+# never, under any framing
+# ---------------------------------------------------------------------------
+
+[[group]]
+decision = "deny"
+why = "Privilege escalation. Nothing an agent does should need root."
+cmds = ["sudo", "doas", "su"]
+match = ["sudo rm -rf /", "sudo apt install curl"]
+
+[[group]]
+decision = "deny"
+why = "Recursive or raw deletion with no undo."
+cmds = ["rm -rf", "rm -fr", "rm -r", "rmdir", "shred"]
+match = ["rm -rf node_modules"]
+not_match = ["rm file.txt"]
+
+[[group]]
+decision = "deny"
+why = "Writes raw blocks or repartitions disks."
+cmds = ["dd", "mkfs", "diskutil", "fdisk"]
+
+[[group]]
+decision = "deny"
+why = "Changes ownership or opens permissions across a tree."
+cmds = ["chown", "chmod 777", "chmod -R"]
+
+[[group]]
+decision = "deny"
+why = "Arbitrary network I/O is the exfiltration path. Use the fetch tool, which is logged."
+cmds = ["curl", "wget", "nc", "ncat", "socat"]
+match = ["curl https://example.com", "wget http://example.com/x.sh"]
+
+[[group]]
+decision = "deny"
+why = "Moves data or executes on other machines, outside anything this policy can see."
+cmds = ["ssh", "scp", "rsync", "sftp", "ssh-keygen", "ssh-add"]
+
+[[group]]
+decision = "deny"
+why = "Credential stores. Reading one is the same as leaking it."
+cmds = ["gpg", "pass", "security", "keychain", "op", "vault"]
+
+[[group]]
+decision = "deny"
+why = "Executes a constructed string, which defeats every rule above it."
+cmds = ["eval", "exec", "source", "bash -c", "sh -c", "zsh -c", "osascript"]
+match = ["bash -c 'rm -rf /'", "eval $PAYLOAD"]
+
+[[group]]
+decision = "deny"
+why = "Starts, stops or schedules background work that outlives the session."
+cmds = ["launchctl", "systemctl", "service", "crontab", "at"]
+
+[[group]]
+decision = "deny"
+why = "Kills processes the agent did not start, or takes the machine down."
+cmds = ["kill -9", "killall", "pkill", "shutdown", "reboot"]
+
+[[group]]
+decision = "deny"
+why = "Rewrites macOS defaults for other applications."
+cmds = ["defaults write"]
+
+[[group]]
+decision = "deny"
+why = "find running a command per match is an arbitrary execution primitive."
+cmds = ["find * -delete", "find * -exec", "xargs rm"]
+match = ["find . -name '*.log' -delete"]
+
+[[group]]
+decision = "deny"
+why = "Covers the agent's tracks."
+exact = ["history -c"]
+
+[[group]]
+decision = "deny"
+why = "A nested agent starts with its own permission set, not this one."
+cmds = ["claude", "codex", "opencode", "omp", "droid", "cursor-agent"]
+match = ["claude --dangerously-skip-permissions"]
+
+# ---------------------------------------------------------------------------
+# files that are never read
+# ---------------------------------------------------------------------------
+
+[[group]]
+decision = "deny"
+tool = "Read"
+why = "Secrets, private keys and cloud credentials. A read is a leak."
+args = [
+  "**/.env",
+  "**/.env.*",
+  "**/*.pem",
+  "**/*.key",
+  "**/*.p12",
+  "**/*.keystore",
+  "**/id_rsa*",
+  "**/id_ed25519*",
+  "**/credentials",
+  "**/*credentials*.json",
+  "**/secrets/**",
+  "~/.ssh/**",
+  "~/.aws/**",
+  "~/.config/gcloud/**",
+  "~/.azure/**",
+  "~/.kube/config",
+  "~/.docker/config.json",
+  "~/.netrc",
+  "~/.npmrc",
+  "~/.pypirc",
+  "~/.gnupg/**",
+  "~/.codex/auth.json",
+  "~/Library/Keychains/**",
+]
+
+# ---------------------------------------------------------------------------
+# files that are never edited
+# ---------------------------------------------------------------------------
+
+[[group]]
+decision = "deny"
+tool = "Edit"
+why = "Editing these is how an agent changes what runs next, including its own permissions."
+args = [
+  ".git/hooks/**",
+  ".git/config",
+  ".claude/**",
+  ".codex/**",
+  ".opencode/**",
+  ".omp/**",
+  ".factory/**",
+  ".cursor/**",
+  ".vscode/**",
+  ".idea/**",
+  ".husky/**",
+  ".devcontainer/**",
+  "**/.github/workflows/**",
+  "~/.zshrc",
+  "~/.bashrc",
+  "~/.profile",
+  "~/.gitconfig",
+]

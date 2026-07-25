@@ -1,0 +1,47 @@
+name = "Cloud CLIs"
+slug = "cloud"
+description = "AWS, Google Cloud, Azure, IBM Cloud"
+order = 140
+
+# These sections allow read verbs and deny specific mutating verbs, rather than
+# denying the binary and carving out exceptions. A broad deny cannot carry
+# exceptions: deny Bash(aws *) would kill every allow below it.
+
+[[group]]
+decision = "allow"
+why = "AWS read verbs. describe, list and get never change anything."
+cmds = ["aws * describe-*", "aws * list-*", "aws * get-*", "aws s3 ls", "aws logs tail", "aws cloudformation validate-template", "aws configure list", "aws sts get-caller-identity"]
+match = ["aws ec2 describe-instances", "aws s3 ls s3://bucket"]
+not_match = ["aws s3 rm s3://bucket/key"]
+
+[[group]]
+decision = "allow"
+why = "Google Cloud read verbs."
+cmds = ["gcloud config list", "gcloud * list", "gcloud * describe", "gsutil ls"]
+
+[[group]]
+decision = "allow"
+why = "Azure read verbs."
+cmds = ["az account show", "az * list", "az * show"]
+
+[[group]]
+decision = "allow"
+why = "IBM Cloud read verbs, including Code Engine inspection."
+cmds = ["ibmcloud ce * list", "ibmcloud ce * get", "ibmcloud ce * logs", "ibmcloud resource * list"]
+exact = ["ibmcloud target"]
+
+[[group]]
+decision = "deny"
+why = "AWS mutating verbs. Creating, updating or deleting cloud resources costs money and has no undo."
+cmds = ["aws * delete*", "aws * terminate*", "aws * remove*", "aws * put*", "aws * create*", "aws * update*", "aws s3 rm", "aws s3 rb", "aws s3 sync", "aws s3 mv"]
+match = ["aws ec2 terminate-instances --instance-ids i-123"]
+
+[[group]]
+decision = "deny"
+why = "Identity and access changes are never delegated. Neither is rewriting your local credential state."
+cmds = ["aws iam", "aws sts assume-role", "aws configure set", "gcloud iam", "gcloud auth", "az role", "az login", "ibmcloud iam", "ibmcloud login"]
+
+[[group]]
+decision = "deny"
+why = "Google Cloud, Azure and IBM Cloud mutating verbs."
+cmds = ["gcloud * delete", "gcloud * create", "gcloud * update", "gsutil rm", "gsutil rsync", "az * delete", "az * create", "az * update", "ibmcloud * delete", "ibmcloud * create", "ibmcloud * update"]

@@ -1,0 +1,64 @@
+name = "Node and TypeScript"
+slug = "node"
+description = "npm, pnpm, yarn, bun, deno, and the JS toolchain"
+order = 20
+
+[[group]]
+decision = "allow"
+why = "Runs a script the repository already defines. Nothing new is resolved from a registry."
+cmds = ["npm run", "npm test", "pnpm run", "pnpm test", "pnpm -r run", "pnpm -F * run", "yarn run", "yarn test", "bun run", "bun test", "deno task", "deno test", "node --test"]
+match = ["npm run build", "pnpm test"]
+
+[[group]]
+decision = "allow"
+why = "Lockfile-exact installs. The dependency graph is already decided, so nothing new is resolved."
+exact = ["npm ci", "pnpm install --frozen-lockfile", "yarn install --immutable", "bun install --frozen-lockfile"]
+not_match = ["npm install express"]
+
+[[group]]
+decision = "allow"
+why = "Read-only inspection of the dependency tree."
+cmds = ["npm ls", "npm why", "npm view", "npm outdated", "npm pack --dry-run", "pnpm list", "pnpm why", "pnpm outdated", "yarn workspaces list", "yarn info", "bun pm ls", "deno info"]
+exact = ["npm audit", "node --version"]
+
+[[group]]
+decision = "allow"
+why = "Type checking, linting and formatting. They read the tree and at most rewrite formatting."
+cmds = ["tsc", "tsgo", "oxlint", "biome check", "biome format", "biome lint", "biome ci", "eslint", "prettier", "dprint check", "dprint fmt", "deno check", "deno fmt", "deno lint", "svelte-check", "vue-tsc"]
+
+[[group]]
+decision = "allow"
+why = "Test runners. They execute the repository's own test code, which you already trust enough to have committed."
+cmds = ["vitest", "jest", "playwright test", "playwright show-report"]
+
+[[group]]
+decision = "allow"
+why = "Builds write to the output directory and nowhere else."
+cmds = ["vite build", "vite preview", "rspack build", "rolldown", "rollup -c", "esbuild", "tsdown", "tsup", "bun build", "next build", "next lint", "next typegen", "nuxt build", "nuxt typecheck", "astro build", "astro check", "ng build", "ng test", "ng lint", "expo prebuild --no-install", "expo-doctor", "storybook build", "chromatic --dry-run"]
+
+[[group]]
+decision = "allow"
+why = "Monorepo orchestrators running tasks the repository already defines."
+cmds = ["turbo run", "nx run-many", "nx affected", "nx graph --file", "moon run", "moon check"]
+
+[[group]]
+decision = "allow"
+why = "Repository analysis. Read-only."
+cmds = ["knip", "depcheck", "madge", "size-limit", "bundlemon", "changeset status"]
+
+[[group]]
+decision = "allow"
+why = "npx, bunx and pnpm dlx are not stripped before matching, so every entry names the inner command. Bash(npx *) would mean run anything."
+cmds = ["npx tsc", "npx tsgo", "npx oxlint", "npx biome check", "npx eslint", "npx prettier", "npx vitest", "npx jest", "npx playwright test", "npx tsx", "npx turbo run", "npx nx affected", "npx knip", "npx changeset status", "bunx tsc", "bunx biome check", "bunx vitest", "pnpm dlx tsc", "pnpm dlx biome check"]
+not_match = ["npx some-unknown-package"]
+
+[[group]]
+decision = "ask"
+why = "Resolves and installs new code from a registry, then runs its lifecycle scripts as you. That is remote code execution."
+cmds = ["npm install", "pnpm add", "yarn add", "bun add"]
+match = ["npm install left-pad"]
+
+[[group]]
+decision = "ask"
+why = "Opens a browser session that records whatever you do into a test file."
+cmds = ["playwright codegen"]

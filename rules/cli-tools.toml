@@ -1,0 +1,58 @@
+name = "CLI utilities"
+slug = "cli-tools"
+description = "Search, data wrangling, docs linting, and everyday shell utilities"
+order = 190
+
+[[group]]
+decision = "allow"
+why = "Search and structured data tools. They read and print."
+cmds = ["rg", "fd", "jq", "gojq", "yq", "sd", "delta", "difft", "tokei", "scc", "hyperfine", "jless", "mlr", "xsv", "bat", "eza", "tree"]
+match = ["rg TODO src/", "jq '.name' package.json"]
+
+[[group]]
+decision = "allow"
+why = "Linters and formatters for shell, config and prose."
+cmds = ["shellcheck", "shfmt", "yamllint", "taplo fmt", "taplo check", "markdownlint", "typos", "vale", "lychee"]
+
+[[group]]
+decision = "allow"
+why = "Documentation and API schema tooling. Output goes to a build directory."
+cmds = ["mkdocs build", "hugo", "pandoc", "graphql-inspector diff", "spectral lint", "openapi-generator-cli validate", "redocly lint"]
+
+[[group]]
+decision = "allow"
+why = "Ordinary file manipulation inside the working tree. Recursive and forced deletion is denied separately."
+cmds = ["mkdir", "touch", "cp", "mv", "ln -s", "chmod +x", "basename", "dirname", "realpath"]
+not_match = ["rm -rf build"]
+
+[[group]]
+decision = "allow"
+why = "Text processing on stdin and files."
+cmds = ["sort", "uniq", "cut", "comm", "join", "column", "date"]
+
+[[group]]
+decision = "allow"
+why = "Machine and environment facts. Read-only."
+cmds = ["uname", "sw_vers", "lsb_release", "df -h", "free -h", "sysctl -n", "pgrep", "lsof -i", "ss -tlnp"]
+exact = ["env", "hostname", "whoami", "nproc"]
+
+[[group]]
+decision = "allow"
+why = "DNS lookups and certificate inspection. No data leaves except the query itself."
+cmds = ["dig", "nslookup", "openssl x509 -text"]
+
+[[group]]
+decision = "allow"
+why = "Encoding and checksums."
+cmds = ["base64", "sha256sum", "shasum", "md5sum"]
+
+[[group]]
+decision = "allow"
+why = "Listing archive contents. Extraction is not included, because it writes wherever the archive says."
+cmds = ["tar -tf", "unzip -l", "gzip -l", "zstd -l"]
+not_match = ["tar -xf archive.tar"]
+
+[[group]]
+decision = "ask"
+why = "Generates real network load, or calls a gRPC service that may be production."
+cmds = ["k6 run", "grpcurl"]

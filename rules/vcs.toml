@@ -1,0 +1,83 @@
+name = "Version control"
+slug = "vcs"
+description = "git, jujutsu, and commit hooks"
+order = 10
+
+[[group]]
+decision = "allow"
+why = "Local and reversible. Anything these touch is recoverable from the reflog."
+cmds = [
+  "git add",
+  "git commit",
+  "git switch",
+  "git checkout",
+  "git branch",
+  "git fetch",
+  "git pull --ff-only",
+  "git stash",
+  "git worktree",
+  "git rebase",
+  "git bisect",
+  "git notes",
+]
+exact = [
+  "git merge --abort",
+  "git cherry-pick --abort",
+  "git revert --abort",
+]
+match = ["git add .", "git commit -m fix", "git fetch origin", "git rebase --continue"]
+not_match = ["git push --force origin main"]
+
+[[group]]
+decision = "allow"
+why = "Read-only inspection."
+cmds = [
+  "git blame",
+  "git describe",
+  "git rev-parse",
+  "git ls-files",
+  "git shortlog",
+  "git range-diff",
+  "git lfs ls-files",
+]
+exact = ["git tag", "git remote -v", "git submodule status"]
+
+[[group]]
+decision = "allow"
+why = "Jujutsu keeps an operation log, so every one of these is undoable with jj undo."
+cmds = ["jj log", "jj diff", "jj describe", "jj new", "jj squash", "jj rebase"]
+exact = ["jj status"]
+
+[[group]]
+decision = "allow"
+why = "Runs the hooks the repository already committed to running."
+cmds = ["gitleaks detect", "gitleaks protect", "pre-commit run", "lefthook run", "commitlint"]
+
+[[group]]
+decision = "ask"
+why = "Publishes to a shared remote or rewrites a commit others may already have."
+cmds = ["git push", "git commit --amend", "git tag -d", "git remote add", "git submodule update"]
+
+[[group]]
+decision = "deny"
+why = "Rewrites shared history. Run --force-with-lease yourself if you mean it."
+cmds = ["git push --force", "git push -f", "git push --mirror", "git push --delete"]
+match = ["git push --force origin main"]
+not_match = ["git push origin main"]
+
+[[group]]
+decision = "deny"
+why = "Destroys uncommitted work. There is no reflog for something never committed."
+cmds = ["git reset --hard", "git clean -f", "git clean -x", "git checkout --", "git restore"]
+match = ["git reset --hard HEAD~1", "git restore src/main.ts"]
+
+[[group]]
+decision = "deny"
+why = "Rewrites or prunes history beyond recovery."
+cmds = ["git filter-branch", "git filter-repo", "git reflog delete", "git gc --prune", "git update-ref -d", "git branch -D"]
+
+[[group]]
+decision = "deny"
+why = "Changes git behaviour outside this repository, or redirects git to another binary."
+cmds = ["git config --global", "git config --system"]
+exact = ["git *--exec-path*"]

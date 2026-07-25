@@ -1,0 +1,22 @@
+name = "Ruby, Elixir, Haskell"
+slug = "other-langs"
+description = "bundler, mix, cabal, stack"
+order = 100
+
+[[group]]
+decision = "allow"
+why = "Runs the repository's own tests and linters through bundler."
+cmds = ["bundle exec rspec", "bundle exec rubocop", "bundle exec rake test", "bundle exec rails test", "bundle exec srb tc"]
+exact = ["bundle install --deployment", "bundle check"]
+match = ["bundle exec rspec spec/"]
+
+[[group]]
+decision = "allow"
+why = "Elixir compilation, tests and analysis against the committed mix.lock."
+cmds = ["mix compile", "mix test", "mix format", "mix credo", "mix dialyzer"]
+exact = ["mix deps.get"]
+
+[[group]]
+decision = "allow"
+why = "Haskell builds, tests and formatting."
+cmds = ["cabal build", "cabal test", "stack build", "stack test", "hlint", "fourmolu"]

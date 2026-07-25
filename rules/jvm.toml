@@ -1,0 +1,36 @@
+name = "JVM and build systems"
+slug = "jvm"
+description = "Gradle, Maven, Kotlin linters, Bazel, Buck2, Pants"
+order = 60
+
+[[group]]
+decision = "allow"
+why = "Wrapper-driven builds and tests. The wrapper script is committed to the repository."
+cmds = ["./gradlew build", "./gradlew test", "./gradlew check", "./gradlew assemble", "./gradlew lint", "./gradlew tasks", "./gradlew dependencies", "gradle build", "gradle test", "gradle check", "gradle tasks"]
+match = ["./gradlew test --info"]
+
+[[group]]
+decision = "allow"
+why = "Formatting and static analysis on the JVM. Rewrites formatting at most."
+cmds = ["./gradlew spotlessCheck", "./gradlew spotlessApply", "./gradlew ktlintCheck", "./gradlew ktlintFormat", "./gradlew detekt", "./gradlew koverVerify", "ktlint", "detekt"]
+
+[[group]]
+decision = "allow"
+why = "Maven lifecycle phases up to verify. Nothing is deployed."
+cmds = ["./mvnw compile", "./mvnw test", "./mvnw verify", "./mvnw package", "./mvnw spotless:check", "./mvnw spotless:apply", "./mvnw dependency:tree", "mvn compile", "mvn test", "mvn verify", "mvn dependency:tree", "mvn help:effective-pom"]
+not_match = ["mvn deploy"]
+
+[[group]]
+decision = "allow"
+why = "Hermetic build systems. Actions are sandboxed and outputs land in the build tree."
+cmds = ["bazel build", "bazel test", "bazel query", "bazel cquery", "bazel aquery", "bazel info", "bazel mod graph", "bazelisk build", "bazelisk test", "buck2 build", "buck2 test", "buck2 targets", "buck2 audit", "pants test", "pants lint", "pants check", "pants dependencies"]
+
+[[group]]
+decision = "allow"
+why = "Runs a single-file JVM script the repository already contains."
+cmds = ["jbang"]
+
+[[group]]
+decision = "deny"
+why = "Wipes the entire Bazel output base, including caches that take hours to rebuild."
+cmds = ["bazel clean --expunge"]

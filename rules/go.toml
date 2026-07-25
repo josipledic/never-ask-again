@@ -1,0 +1,38 @@
+name = "Go"
+slug = "go"
+description = "go toolchain, linters, protobuf, sqlc"
+order = 30
+
+[[group]]
+decision = "allow"
+why = "Compiles, tests and inspects. Output goes to the build cache or the working tree."
+cmds = ["go build", "go test", "go vet", "go fmt", "go tool", "go list", "go doc", "go generate"]
+match = ["go test ./...", "go build ./cmd/server"]
+
+[[group]]
+decision = "allow"
+why = "Module bookkeeping against the existing go.mod. Nothing new is added."
+cmds = ["go mod why"]
+exact = ["go mod tidy", "go mod download", "go mod verify", "go mod graph", "go work sync"]
+
+[[group]]
+decision = "allow"
+why = "Formatters and import organisers. They rewrite formatting only."
+cmds = ["gofmt", "gofumpt", "goimports", "gci write"]
+
+[[group]]
+decision = "allow"
+why = "Linters, vulnerability scanners and test wrappers. Read-only analysis."
+cmds = ["golangci-lint run", "golangci-lint fmt", "gotestsum", "govulncheck", "staticcheck", "gosec"]
+
+[[group]]
+decision = "allow"
+why = "Code generation into the working tree from schemas already in the repository."
+cmds = ["mockery", "sqlc generate", "sqlc vet", "buf lint", "buf build", "buf generate", "buf format", "buf breaking"]
+exact = ["protoc --version"]
+
+[[group]]
+decision = "ask"
+why = "Downloads and builds code from a module proxy, and go install puts a binary on your PATH."
+cmds = ["go install", "go get"]
+match = ["go get github.com/some/module"]
