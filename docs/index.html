@@ -11,11 +11,15 @@
 <meta property="og:title" content="never-ask-again">
 <meta property="og:description" content="Permission allowlists for AI coding agents. 971 rules across 20 ecosystems, generated for six agents.">
 <meta property="og:url" content="https://josipledic.github.io/never-ask-again/">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://josipledic.github.io/never-ask-again/title.png">
+<meta property="og:image:width" content="1983">
+<meta property="og:image:height" content="793">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="never-ask-again">
 <meta name="twitter:description" content="Permission allowlists for AI coding agents. 971 rules across 20 ecosystems, generated for six agents.">
+<meta name="twitter:image" content="https://josipledic.github.io/never-ask-again/title.png">
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2337453a'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='%23fbf7f2' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23d7d8cc'/%3E%3Cpath d='M11 15v-3a5 5 0 0 1 10 0v3' stroke='%2337453a' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3Crect x='8.5' y='14.5' width='15' height='11' rx='2.5' fill='%2337453a'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -127,7 +131,7 @@ section:last-of-type { border-bottom: 0; }
 .caveat { font-size: 14.5px; color: var(--muted); margin: 14px 0 0; max-width: 62ch; }
 
 .figure { margin: 0; padding: 8px 0 0; }
-.figure svg { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; }
+.figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; }
 
 /* bucket cards */
 .buckets { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 0 0 28px; }
@@ -233,28 +237,10 @@ footer { padding: 44px 0 64px; font-size: 14px; color: var(--muted); }
     </div>
 
     <figure class="figure">
-      <svg viewBox="0 0 880 300" role="img" aria-label="Three commands sorted into allow, ask and deny">
-        <rect width="880" height="300" fill="#f5f2ea"/>
-        <g font-family="IBM Plex Mono, monospace" font-size="15">
-          <rect x="40" y="44" width="800" height="58" rx="8" fill="#fbf7f2" stroke="#e6e0d6"/>
-          <rect x="40" y="44" width="5" height="58" rx="2.5" fill="#d7d8cc"/>
-          <text x="70" y="70" fill="#37453a">terraform plan</text>
-          <text x="70" y="90" fill="#8a8578" font-size="13">reads state, prints a diff</text>
-          <text x="800" y="79" fill="#5f6c61" text-anchor="end">allow</text>
-
-          <rect x="40" y="120" width="800" height="58" rx="8" fill="#fbf7f2" stroke="#e6e0d6"/>
-          <rect x="40" y="120" width="5" height="58" rx="2.5" fill="#f2e1d4"/>
-          <text x="70" y="146" fill="#37453a">terraform apply</text>
-          <text x="70" y="166" fill="#8a8578" font-size="13">changes production</text>
-          <text x="800" y="155" fill="#5f6c61" text-anchor="end">ask</text>
-
-          <rect x="40" y="196" width="800" height="58" rx="8" fill="#fbf7f2" stroke="#e6e0d6"/>
-          <rect x="40" y="196" width="5" height="58" rx="2.5" fill="#dfd6de"/>
-          <text x="70" y="222" fill="#37453a">terraform state rm</text>
-          <text x="70" y="242" fill="#8a8578" font-size="13">corrupts the file you would recover from</text>
-          <text x="800" y="231" fill="#5f6c61" text-anchor="end">deny</text>
-        </g>
-      </svg>
+      <picture>
+        <source srcset="title.webp" type="image/webp">
+        <img src="title.png" width="1983" height="793" alt="One permission policy fanning out to a terminal, git, JSON, Docker, Kubernetes, Python, Rust, cloud, database, Terraform and checklist tiles">
+      </picture>
     </figure>
   </div>
 </section>
