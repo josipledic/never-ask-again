@@ -1,5 +1,7 @@
 <h1 align="center">never-ask-again</h1>
 
+<img src="/docs/title.png" />
+
 <p align="center">
   Permission allowlists for AI coding agents, so yours stops asking<br>
   and still cannot nuke your laptop.
