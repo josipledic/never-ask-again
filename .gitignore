@@ -4,6 +4,10 @@
 # Local session notes, not for the public repo
 HANDOVER.md
 
+# Per-developer agent config, not shared
+.claude/settings.local.json
+.cursor/cli.json
+
 # Python
 __pycache__/
 *.pyc
