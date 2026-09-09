@@ -1,9 +1,14 @@
-"""Bob (IBM Bob IDE): ~/.bob/settings.json (user) or .bob/settings.json (project)
+"""Bob (IBM Bob IDE): ~/.bob/settings/settings.json
 
-autoApprove.allowedCommands is a flat prefix/substring allowlist. Commands not
-in the list prompt regardless of the execute flag. There is no deny list, so
-deny and ask rules are simply omitted. execute is set to false so that only
-the allowlist entries run unattended.
+approval.allowedExecutors is a list of per-tool allowlists. For the
+execute_command tool, approvedCommands is a prefix allowlist: "go test"
+matches "go test ./..." and any other invocation starting with those tokens.
+Commands not in the list prompt. deniedCommands is left empty because the
+allowlist already restricts what runs unattended; a separate deny list is not
+needed for this use case.
+
+ask and deny rules are omitted -- they are the default behaviour (prompt).
+Wildcard-only patterns are skipped because a bare "*" would match everything.
 """
 
 from __future__ import annotations
@@ -13,7 +18,7 @@ import json
 from ruleset import Ecosystem
 
 PATH = "bob/settings.json"
-CONFIG_PATH = "~/.bob/settings.json"
+CONFIG_PATH = "~/.bob/settings/settings.json"
 
 
 def render(ecosystems: list[Ecosystem]) -> str:
@@ -28,12 +33,14 @@ def render(ecosystems: list[Ecosystem]) -> str:
                 allowed.append(rule.pattern)
 
     config = {
-        "autoApprove": {
-            "read": True,
-            "edit": True,
-            "execute": False,
-            "allowedCommands": allowed,
-            "mcp": False,
+        "approval": {
+            "allowedExecutors": [
+                {
+                    "toolId": "execute_command",
+                    "approvedCommands": allowed,
+                    "deniedCommands": [],
+                }
+            ]
         }
     }
     return json.dumps(config, indent=2) + "\n"

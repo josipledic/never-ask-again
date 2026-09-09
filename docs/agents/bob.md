@@ -7,57 +7,59 @@ Bob is the IBM Bob IDE VS Code extension.
 ## Install
 
 ```bash
-mkdir -p ~/.bob
+mkdir -p ~/.bob/settings
 curl -fsSL https://raw.githubusercontent.com/josipledic/never-ask-again/main/dist/bob/settings.json \
-  -o ~/.bob/settings.json
+  -o ~/.bob/settings/settings.json
 ```
 
-Per project, drop the same file at `.bob/settings.json` in the repository root.
-The project-level file takes precedence over the user-level one.
+If `~/.bob/settings/settings.json` already exists, merge rather than overwrite:
+read the existing file, union the `approvedCommands` arrays, and keep every
+other key untouched. See the merge rules below.
 
 ## Rule format
 
 ```json
 {
-  "autoApprove": {
-    "read": true,
-    "edit": true,
-    "execute": false,
-    "allowedCommands": ["git status", "go test"],
-    "mcp": false
+  "approval": {
+    "allowedExecutors": [
+      {
+        "toolId": "execute_command",
+        "approvedCommands": ["git status", "go test"],
+        "deniedCommands": []
+      }
+    ]
   }
 }
 ```
 
-`allowedCommands` is a flat allowlist. Bob matches entries as prefix/substring
-against the full command string. A command not in the list prompts when
-`execute` is false. There is no separate deny list in the config - unlisted
-commands simply prompt.
+`approvedCommands` is a prefix allowlist for the `execute_command` tool. Bob
+matches an entry if the command string starts with it, so `"go test"` covers
+`"go test ./..."` and any other flags. Commands not in the list prompt.
+`deniedCommands` is left empty: the allowlist is the restriction.
 
 ## What this repo generates
 
-Bob's permission model has no deny list, so only `allow` rules map onto a
-config entry:
+Bob's permission model has no deny list in the config, so only `allow` rules
+map onto an entry:
 
-- `allow` rules become entries in `autoApprove.allowedCommands`
+- `allow` rules become entries in `approval.allowedExecutors[0].approvedCommands`
 - `ask` and `deny` rules are **not** emitted, so those commands prompt
 
-`execute` is set to `false` so the allowlist does the work. Commands with an
-embedded wildcard (`*`) are dropped rather than guessed at, since Bob matches
-on plain strings, not glob patterns.
+Commands with an embedded wildcard (`*`) are dropped rather than guessed at,
+since Bob matches on plain string prefixes, not glob patterns.
 
 ## Merge rules
 
 When merging with an existing config:
 
-- `allowedCommands`: union, drop duplicates
-- Boolean flags (`read`, `edit`, `execute`, `mcp`): keep the more restrictive
-  value (`false` beats `true`)
+- `approvedCommands`: union, drop duplicates
+- `deniedCommands`: union (adding denies is always safe)
+- Leave every other key in the file untouched
 
 ## Verify the matching behaviour yourself
 
-Bob's documentation describes `allowedCommands` entries as prefix/substring
-matches against the full command string. Confirm that against your installed
-version before relying on it. If your build matches whole strings only, the
-allowlist will do less than expected rather than more, so the failure mode is
-extra prompts, not extra permissions.
+Bob matches `approvedCommands` entries as prefix matches against the full
+command string. Confirm that against your installed version before relying on
+it. If your build matches whole strings only, the allowlist will do less than
+expected rather than more, so the failure mode is extra prompts, not extra
+permissions.

@@ -38,7 +38,7 @@ all.
 
 | Agent | Config file | Generated | Granularity |
 | --- | --- | --- | --- |
-| [Bob](docs/agents/bob.md) | `~/.bob/settings.json` | [`dist/bob/settings.json`](dist/bob/settings.json) | literal commands |
+| [Bob](docs/agents/bob.md) | `~/.bob/settings/settings.json` | [`dist/bob/settings.json`](dist/bob/settings.json) | prefix match |
 | [Claude Code](docs/agents/claude-code.md) | `~/.claude/settings.json` | [`dist/claude/settings.json`](dist/claude/settings.json) | full arguments |
 | [Codex](docs/agents/codex.md) | `~/.codex/rules/default.rules` | [`dist/codex/default.rules`](dist/codex/default.rules) | full argv |
 | [OpenCode](docs/agents/opencode.md) | `~/.config/opencode/opencode.json` | [`dist/opencode/opencode.json`](dist/opencode/opencode.json) | full arguments |
