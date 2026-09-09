@@ -30,6 +30,7 @@ If you cannot satisfy all three, stop and tell the user what you would need.
 
 | If you are | Fetch | Write to | Config key |
 | --- | --- | --- | --- |
+| Bob | `dist/bob/settings.json` | `~/.bob/settings.json` | `autoApprove` |
 | Claude Code | `dist/claude/settings.json` | `~/.claude/settings.json` | `permissions` |
 | Codex | `dist/codex/default.rules` | `~/.codex/rules/default.rules` | whole file |
 | OpenCode | `dist/opencode/opencode.json` | `~/.config/opencode/opencode.json` | `permission` |
@@ -62,6 +63,10 @@ Fetch the file from the table above and combine it with what you found.
   report.
 - Leave every non-permission key untouched.
 
+For Bob, merge `autoApprove.allowedCommands` as a union (drop duplicates) and
+keep the more restrictive value for each boolean flag (`read`, `edit`,
+`execute`, `mcp`): `false` beats `true`.
+
 For Codex the destination is a standalone rules file rather than a key inside a
 larger config, so a merge only applies if `~/.codex/rules/default.rules`
 already exists. If it does, append the new `prefix_rule` entries and tell the
@@ -91,6 +96,7 @@ Write the merged file. Then verify, per agent:
 
 | Agent | Verification |
 | --- | --- |
+| Bob | Confirm the file parses as JSON. |
 | Claude Code | Tell the user to run `/permissions`. Restart is not required. |
 | Codex | `codex execpolicy check --pretty --rules ~/.codex/rules/default.rules -- git push --force` should report `forbidden`. |
 | OpenCode | Confirm the file parses as JSON. |

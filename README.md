@@ -10,7 +10,7 @@
 <p align="center">
 <!-- badges:start -->
 
-[![CI](https://github.com/josipledic/never-ask-again/actions/workflows/ci.yml/badge.svg)](https://github.com/josipledic/never-ask-again/actions/workflows/ci.yml) ![rules](https://img.shields.io/badge/rules-971-2f81f7) ![agents](https://img.shields.io/badge/agents-6-2f81f7) ![dependencies](https://img.shields.io/badge/dependencies-none-2f81f7) ![license](https://img.shields.io/badge/license-MIT-2f81f7)
+[![CI](https://github.com/josipledic/never-ask-again/actions/workflows/ci.yml/badge.svg)](https://github.com/josipledic/never-ask-again/actions/workflows/ci.yml) ![rules](https://img.shields.io/badge/rules-971-2f81f7) ![agents](https://img.shields.io/badge/agents-7-2f81f7) ![dependencies](https://img.shields.io/badge/dependencies-none-2f81f7) ![license](https://img.shields.io/badge/license-MIT-2f81f7)
 
 <!-- badges:end -->
 </p>
@@ -38,6 +38,7 @@ all.
 
 | Agent | Config file | Generated | Granularity |
 | --- | --- | --- | --- |
+| [Bob](docs/agents/bob.md) | `~/.bob/settings.json` | [`dist/bob/settings.json`](dist/bob/settings.json) | literal commands |
 | [Claude Code](docs/agents/claude-code.md) | `~/.claude/settings.json` | [`dist/claude/settings.json`](dist/claude/settings.json) | full arguments |
 | [Codex](docs/agents/codex.md) | `~/.codex/rules/default.rules` | [`dist/codex/default.rules`](dist/codex/default.rules) | full argv |
 | [OpenCode](docs/agents/opencode.md) | `~/.config/opencode/opencode.json` | [`dist/opencode/opencode.json`](dist/opencode/opencode.json) | full arguments |
@@ -70,6 +71,19 @@ stops and waits for you before adding a single `allow` rule. An agent widening
 its own permissions unsupervised is the exact thing this repo exists to prevent.
 
 ### Or copy the file
+
+<details>
+<summary><b>Bob</b></summary>
+
+```bash
+mkdir -p ~/.bob
+curl -fsSL https://raw.githubusercontent.com/josipledic/never-ask-again/main/dist/bob/settings.json \
+  -o ~/.bob/settings.json
+```
+
+[Full notes](docs/agents/bob.md)
+
+</details>
 
 <details>
 <summary><b>Claude Code</b></summary>

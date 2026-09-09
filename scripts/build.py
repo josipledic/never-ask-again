@@ -16,9 +16,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from ruleset import DIST_DIR, ROOT, Ecosystem, RuleError, load  # noqa: E402
-from targets import claude, codex, cursor, droid, omp, opencode  # noqa: E402
+from targets import bob, claude, codex, cursor, droid, omp, opencode  # noqa: E402
 
-TARGETS = (claude, codex, opencode, omp, droid, cursor)
+TARGETS = (bob, claude, codex, cursor, droid, omp, opencode)
 
 COVERAGE_START = "<!-- coverage:start -->"
 COVERAGE_END = "<!-- coverage:end -->"
