@@ -1,5 +1,8 @@
 {
   "approval": {
+    "allowed_permissions": [
+      "execute"
+    ],
     "allowedExecutors": [
       {
         "toolId": "execute_command",

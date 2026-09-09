@@ -34,13 +34,14 @@ def render(ecosystems: list[Ecosystem]) -> str:
 
     config = {
         "approval": {
+            "allowed_permissions": ["execute"],
             "allowedExecutors": [
                 {
                     "toolId": "execute_command",
                     "approvedCommands": allowed,
                     "deniedCommands": [],
                 }
-            ]
+            ],
         }
     }
     return json.dumps(config, indent=2) + "\n"

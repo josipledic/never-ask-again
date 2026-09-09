@@ -21,6 +21,7 @@ other key untouched. See the merge rules below.
 ```json
 {
   "approval": {
+    "allowed_permissions": ["execute"],
     "allowedExecutors": [
       {
         "toolId": "execute_command",
@@ -32,9 +33,14 @@ other key untouched. See the merge rules below.
 }
 ```
 
+`allowed_permissions` must include `"execute"` — this is the master Execute
+toggle in Bob Settings. Without it, `approvedCommands` has no effect: no
+commands run unattended regardless of the list.
+
 `approvedCommands` is a prefix allowlist for the `execute_command` tool. Bob
 matches an entry if the command string starts with it, so `"go test"` covers
-`"go test ./..."` and any other flags. Commands not in the list prompt.
+`"go test ./..."` and any other flags. Commands not in the list prompt even
+when the execute permission is on.
 `deniedCommands` is left empty: the allowlist is the restriction.
 
 ## What this repo generates
@@ -42,6 +48,7 @@ matches an entry if the command string starts with it, so `"go test"` covers
 Bob's permission model has no deny list in the config, so only `allow` rules
 map onto an entry:
 
+- `approval.allowed_permissions` is set to `["execute"]` to enable the master toggle
 - `allow` rules become entries in `approval.allowedExecutors[0].approvedCommands`
 - `ask` and `deny` rules are **not** emitted, so those commands prompt
 
@@ -52,6 +59,7 @@ since Bob matches on plain string prefixes, not glob patterns.
 
 When merging with an existing config:
 
+- `allowed_permissions`: union (enabling more permissions is an `allow`-class change, show the diff and ask)
 - `approvedCommands`: union, drop duplicates
 - `deniedCommands`: union (adding denies is always safe)
 - Leave every other key in the file untouched

@@ -65,8 +65,9 @@ Fetch the file from the table above and combine it with what you found.
 
 For Bob, merge `approval.allowedExecutors[0].approvedCommands` as a union
 (drop duplicates). Merge `approval.allowedExecutors[0].deniedCommands` as a
-union too (adding denies is always safe). Leave every other key in the file
-untouched.
+union too (adding denies is always safe). For `approval.allowed_permissions`,
+union the values and treat this as an `allow`-class change: show it in the
+diff and ask before writing. Leave every other key in the file untouched.
 
 For Codex the destination is a standalone rules file rather than a key inside a
 larger config, so a merge only applies if `~/.codex/rules/default.rules`
